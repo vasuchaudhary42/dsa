@@ -1,0 +1,31 @@
+{
+  "name": "DSA interview handbook",
+  "short_name": "DSA",
+  "description": "Every DSA topic for coding interviews: strategies, animated labs, 323 prioritised LeetCode problems and an interview mode.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#F3F5F7",
+  "theme_color": "#172033",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

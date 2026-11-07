@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="manifest" href="../manifest.webmanifest">
+<meta name="theme-color" content="#172033">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="DSA">
+<link rel="apple-touch-icon" href="../icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="../icons/favicon-32.png">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Two pointers lab</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>
+:root{
+  --paper:#F3F5F7;--surface:#FFFFFF;--ink:#172033;--muted:#5A6478;--line:#D6DBE3;--soft:#E9EDF2;
+  --p1:#2563C9;--p2:#C8641C;--p3:#7A4FD0;--hl:#FFF1B8;--good:#1E7F55;--bad:#B23B3B;--water:#5AA9E6;
+  --kw:#7A4FD0;--num:#C8641C;--onp1:#FFFFFF;
+  color-scheme:light;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#12161D;--surface:#1A2029;--ink:#E7EBF2;--muted:#9AA4B5;--line:#2C3442;--soft:#222A35;
+  --p1:#6EA2FF;--p2:#F09A55;--p3:#B394FF;--hl:#3A3420;--good:#4CC38A;--bad:#E57373;--water:#4D8FC4;--kw:#B394FF;--num:#F09A55;--onp1:#0E1420;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12161D;--surface:#1A2029;--ink:#E7EBF2;--muted:#9AA4B5;--line:#2C3442;--soft:#222A35;
+  --p1:#6EA2FF;--p2:#F09A55;--p3:#B394FF;--hl:#3A3420;--good:#4CC38A;--bad:#E57373;--water:#4D8FC4;--kw:#B394FF;--num:#F09A55;--onp1:#0E1420;color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:17px;line-height:1.6}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+a{color:var(--p1)}
+:focus-visible{outline:3px solid var(--p1);outline-offset:2px;border-radius:6px}
+header.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.bar-in{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{font-weight:700;font-size:17px;white-space:nowrap}
+nav.steps{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+nav.steps a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:14px;padding:5px 10px;border-radius:999px}
+nav.steps a:hover{background:var(--soft);color:var(--ink)}
+nav.steps a b{color:var(--p1);margin-right:4px}
+.theme{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:5px 12px;font:inherit;font-size:14px;cursor:pointer}
+main{max-width:1120px;margin:0 auto;padding:0 20px 80px}
+section{padding-top:56px}
+h1{font-size:clamp(30px,4.4vw,46px);line-height:1.12;margin:40px 0 12px;letter-spacing:-0.01em;max-width:20ch}
+h2{font-size:28px;line-height:1.2;margin:0 0 8px}
+h3{font-size:19px;margin:0 0 6px}
+.lede{color:var(--muted);max-width:66ch;margin:0 0 24px}
+.prose{max-width:70ch}
+.n{display:inline-block;min-width:30px;color:var(--p1);font-weight:700}
+@media (max-width:700px){.bar-in{gap:8px;padding:8px 14px}nav.steps{order:3;flex:1 1 100%;flex-wrap:nowrap;overflow-x:auto}h1{margin-top:24px}}
+/* ---------- lab ---------- */
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.chip{border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:10px;padding:7px 12px;font:inherit;font-size:14.5px;cursor:pointer}
+.chip:hover{border-color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:var(--p1);background:color-mix(in srgb,var(--p1) 10%,transparent)}
+.chip.primary{background:var(--p1);color:var(--onp1);border-color:var(--p1);font-weight:700}
+input.txt{border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:7px 10px;font:inherit;font-size:14.5px;min-width:0}
+.labgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;margin-top:16px}
+@media (max-width:860px){.labgrid{grid-template-columns:1fr}}
+.stage{min-width:0;overflow-x:auto;padding-bottom:6px}
+.cap{font-size:13.5px;color:var(--muted);margin-bottom:8px}
+.cells{display:flex;gap:6px;position:relative}
+.cell{flex:0 0 auto;width:var(--cw,46px);height:var(--cw,46px);border-radius:10px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;background:var(--surface);transition:opacity .3s,border-color .3s,background .3s,transform .3s}
+.cell.out{opacity:.28}
+.cell.on{border-color:var(--p1);border-width:2.5px}
+.cell.hit{border-color:var(--good);border-width:2.5px;background:color-mix(in srgb,var(--good) 14%,transparent)}
+.cell.pre{background:color-mix(in srgb,var(--p3) 12%,transparent);border-color:color-mix(in srgb,var(--p3) 55%,transparent)}
+.cell.wrote{transform:translateY(-4px)}
+.cell.r0{background:color-mix(in srgb,var(--p1) 14%,transparent)}
+.cell.r1{background:color-mix(in srgb,var(--muted) 14%,transparent)}
+.cell.r2{background:color-mix(in srgb,var(--p2) 16%,transparent)}
+.cell.unk{border-style:dashed}
+.idx{display:flex;gap:6px;margin-top:4px}
+.idx span{flex:0 0 auto;width:var(--cw,46px);text-align:center;font-size:12px;color:var(--muted)}
+.ptrs{position:relative;margin-top:2px}
+.ptr{position:absolute;top:0;width:60px;margin-left:-7px;text-align:center;font-weight:700;font-size:14px;transition:left .38s cubic-bezier(.4,.1,.2,1)}
+.ptr::before{content:"";display:block;margin:0 auto 1px;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:9px solid currentColor}
+.p1{color:var(--p1)}.p2{color:var(--p2)}.p3{color:var(--p3)}
+.bars{display:flex;gap:6px;align-items:flex-end;height:170px;position:relative}
+.barcol{flex:0 0 auto;width:var(--cw,46px);height:100%;position:relative}
+.bar{position:absolute;left:8px;right:8px;bottom:0;border-radius:5px 5px 0 0;background:var(--muted);transition:height .35s,opacity .3s,background .3s}
+.bar.on{background:var(--p1)}
+.bar.out{opacity:.3}
+.wfill{position:absolute;left:0;right:0;bottom:0;background:var(--water);opacity:.35;transition:height .35s,bottom .35s}
+.bval{position:absolute;left:0;right:0;text-align:center;font-size:12px;color:var(--muted);transition:bottom .35s}
+.code{font-family:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;font-size:13.5px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 0;overflow-x:auto;min-width:0}
+.ln{display:flex;white-space:pre;padding:2px 12px 2px 0;border-left:3px solid transparent;transition:background .2s}
+.ln.cur{background:var(--hl);border-left-color:var(--p1)}
+.ln i{font-style:normal;width:34px;text-align:right;padding-right:12px;color:var(--muted);flex:0 0 auto}
+.kw{color:var(--kw);font-weight:600}.nm{color:var(--num)}
+.vars{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+.var{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;background:var(--soft);border-radius:8px;padding:4px 9px}
+.var span{color:var(--muted)}
+.note{margin-top:12px;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;min-height:52px;font-size:16px}
+.note.done{border-color:var(--good)}
+.ask{margin-top:12px;border:2px solid var(--p1);border-radius:12px;padding:12px 14px}
+.ask p{margin:0 0 10px;font-weight:700}
+.ask .row .chip{text-align:left}
+.ask .fb{margin-top:10px;font-size:15px}
+.transport{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.transport input[type=range]{flex:1 1 180px;accent-color:var(--p1)}
+.count{font-size:13.5px;color:var(--muted);white-space:nowrap}
+.keys{font-size:13px;color:var(--muted);margin-top:8px}
+kbd{font-family:"JetBrains Mono",monospace;font-size:12px;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface)}
+.grid{display:inline-grid;gap:3px;margin-top:14px}
+.gc{width:30px;height:24px;border-radius:5px;font-size:11.5px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);transition:all .3s}
+.gc.blank{visibility:hidden}
+.gc.hd{border:none;color:var(--muted);font-weight:700}
+.gc.dead{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,transparent);background:color-mix(in srgb,var(--bad) 9%,transparent);text-decoration:line-through;opacity:.75}
+.gc.cur{border:2px solid var(--p1);background:color-mix(in srgb,var(--p1) 12%,transparent);font-weight:700}
+.gc.hit{border:2px solid var(--good);background:color-mix(in srgb,var(--good) 18%,transparent);font-weight:700}
+.err{color:var(--bad);font-size:14px}
+/* ---------- loop ---------- */
+.loop{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin:16px 0 8px}
+@media (max-width:760px){.loop{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.ls{border:1.5px solid var(--line);border-radius:12px;padding:8px 6px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer;text-align:center}
+.ls small{display:block;font-size:12px;color:var(--muted)}
+.ls b{display:block;font-size:14px;line-height:1.25}
+.ls[aria-current="step"]{border-color:var(--p1);border-width:2.5px}
+.ls.past b{color:var(--p1)}
+.track{height:8px;border-radius:4px;background:var(--soft);overflow:hidden;margin:6px 0 4px}
+.track div{height:100%;background:var(--p1);transition:width .4s}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-top:12px}
+.card h3{font-size:21px}
+.tag{font-weight:700;font-size:14px;margin:14px 0 4px}
+.tag.do{color:var(--p1)}.tag.miss{color:var(--bad)}
+.said{background:var(--soft);border-radius:10px;padding:10px 12px}
+.said.mono{font-family:"JetBrains Mono",monospace;font-size:13.5px;white-space:pre-wrap}
+/* ---------- shapes ---------- */
+.shapes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
+@media (max-width:860px){.shapes{grid-template-columns:1fr}}
+.shape{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px}
+.shape .inv{border-left:3px solid var(--p1);padding-left:10px;margin:10px 0;font-weight:700}
+.mini{display:flex;gap:4px;margin:10px 0 2px}
+.mini i{width:26px;height:26px;border-radius:6px;border:1.5px solid var(--line)}
+.mini i.f{background:color-mix(in srgb,var(--p3) 18%,transparent);border-color:var(--p3)}
+.minip{position:relative;height:20px;font-weight:700;font-size:13px}
+.minip span{position:absolute}
+/* ---------- quiz ---------- */
+.quiz{max-width:760px}
+.opt{display:block;width:100%;text-align:left;margin-top:8px}
+.opt.right{border-color:var(--good);background:color-mix(in srgb,var(--good) 12%,transparent)}
+.opt.wrong{border-color:var(--bad)}
+/* ---------- practice ---------- */
+.plist{display:grid;gap:10px;margin-top:16px;max-width:900px}
+.prob{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.prob .top{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.prob .lvl{font-size:13px;color:var(--muted)}
+.prob .shape-name{font-size:13px;color:var(--p3)}
+.checks{display:flex;gap:16px;flex-wrap:wrap;margin-top:8px;font-size:15px}
+.checks label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.checks input{width:18px;height:18px;accent-color:var(--good)}
+.hint{margin-top:8px;font-size:15.5px;border-left:3px solid var(--p2);padding-left:10px}
+.progress{font-size:15px;color:var(--muted)}
+footer{max-width:1120px;margin:0 auto;padding:30px 20px 60px;color:var(--muted);font-size:14px}
+
+.cell.sel{background:color-mix(in srgb,var(--p3) 18%,transparent);border-color:color-mix(in srgb,var(--p3) 60%,transparent)}
+.cell.best{box-shadow:inset 0 -4px 0 var(--good)}
+.ptr.gone{opacity:0}
+.rowlab{font-size:13px;color:var(--muted);font-weight:700;margin:10px 0 4px}
+select.pick{border:1.5px solid var(--line);background:var(--paper);color:var(--ink);border-radius:10px;padding:8px 10px;font:inherit;font-size:15px;max-width:100%}
+.stratline{font-size:14.5px;color:var(--muted);margin-left:4px}
+/* ---------- theory ---------- */
+.tbl{width:100%;border-collapse:collapse;margin:12px 0;font-size:15.5px}
+.tbl th,.tbl td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.tbl th{font-size:14px;color:var(--muted)}
+.tblwrap{overflow-x:auto}
+.proof{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:12px 0}
+.proof h3{font-size:17px}
+pre.tpl{font-family:"JetBrains Mono",ui-monospace,monospace;font-size:13px;background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto;margin:8px 0}
+/* ---------- atlas ---------- */
+.fam{margin-top:22px}
+.fam h3{font-size:18px;color:var(--muted)}
+details.st{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-top:10px}
+details.st summary{cursor:pointer;list-style:none;padding:14px 16px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+details.st summary::-webkit-details-marker{display:none}
+details.st summary::after{content:"Show";order:1;margin-left:auto;font-size:13.5px;color:var(--p1)}
+details.st[open] summary::after{content:"Hide"}
+details.st summary b{font-size:17px}
+details.st summary .sig{order:2;color:var(--muted);font-size:15px;flex-basis:100%;padding-left:30px}
+.stbody{padding:0 16px 16px 46px}
+@media (max-width:700px){.stbody{padding-left:16px}details.st summary .sig{padding-left:0}}
+.kv{display:grid;grid-template-columns:150px minmax(0,1fr);gap:6px 14px;margin:6px 0 4px}
+@media (max-width:700px){.kv{grid-template-columns:1fr}}
+.kv dt{color:var(--muted);font-size:14.5px;font-weight:700}
+.kv dd{margin:0}
+.probs{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.probs a{font-size:14.5px;border:1px solid var(--line);border-radius:8px;padding:3px 8px;text-decoration:none}
+/* ---------- chooser ---------- */
+.chooser{max-width:820px}
+.crumbs{font-size:14px;color:var(--muted);margin-bottom:8px}
+.result{border:2px solid var(--good);border-radius:14px;padding:14px 16px}
+.badge{display:inline-block;font-size:12.5px;font-weight:700;border-radius:999px;padding:1px 9px;border:1.5px solid currentColor;white-space:nowrap;vertical-align:1px}
+.badge.top{color:var(--onp1);background:var(--p2);border-color:var(--p2)}
+.badge.must{color:var(--p2);background:color-mix(in srgb,var(--p2) 12%,transparent)}
+.badge.common{color:var(--p1)}
+.badge.extra{color:var(--muted);border-style:dashed}
+.srcs{font-size:13px;color:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;font-size:14.5px;margin:6px 0 4px}
+.weight{font-weight:700}
+.weight.High{color:var(--p2)}.weight.Medium{color:var(--p1)}.weight.Low{color:var(--muted)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar-in">
+  <div class="brand">Two pointers lab</div>
+  <nav class="steps" aria-label="Lesson sections">
+    <a href="#watch"><b>1</b>Watch it run</a><a href="#theory"><b>2</b>How it works</a><a href="#atlas"><b>3</b>13 strategies</a><a href="#choose"><b>4</b>Which one?</a><a href="#loop"><b>5</b>The loop</a><a href="#quiz"><b>6</b>Check yourself</a><a href="#practice"><b>7</b>Practise</a>
+  </nav>
+  <a class="chip" href="../index.html#glossary">Glossary</a>
+  <a class="chip" href="../index.html" style="text-decoration:none">← Handbook</a>
+  <button class="theme" id="theme" type="button">Dark mode</button>
+</div></header>
+<main>
+<section id="watch">
+  <h1>One comparison can rule out a whole row of candidates.</h1>
+  <p class="lede">Pick any of the 13 strategies and press play. The highlighted line is the one running, the pointers slide to where the code sends them, and the note says why the move is safe. Predict mode stops before each decision and asks you first.</p>
+  <div class="lab">
+    <div class="row">
+      <label for="pick" class="count">Strategy and problem</label>
+      <select class="pick" id="pick"></select>
+      <span class="stratline" id="stratline"></span>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <span id="presets" class="row" role="group" aria-label="Example input"></span>
+      <input class="txt" id="inArr" aria-label="Your input" style="flex:1 1 200px">
+      <input class="txt" id="inT" aria-label="Second input" style="width:130px">
+      <button class="chip" id="run" type="button">Run my input</button>
+      <button class="chip" id="predict" type="button" aria-pressed="true">Predict mode</button>
+    </div>
+    <div class="err" id="err" role="status"></div>
+    <div class="labgrid">
+      <div class="stage">
+        <div class="cap" id="cap"></div>
+        <div id="stageRows"></div>
+        <div id="gridWrap"></div>
+      </div>
+      <div class="code" id="code" aria-label="Code"></div>
+    </div>
+    <div class="vars" id="vars"></div>
+    <div id="askBox"></div>
+    <div class="note" id="note" aria-live="polite"></div>
+    <div class="transport">
+      <button class="chip" id="restart" type="button">Restart</button>
+      <button class="chip" id="back" type="button">Back</button>
+      <button class="chip primary" id="play" type="button">Play</button>
+      <button class="chip" id="fwd" type="button">Step</button>
+      <span class="count">Speed</span>
+      <span class="row" id="speeds" role="group" aria-label="Speed"></span>
+      <input type="range" id="scrub" min="0" value="0" aria-label="Timeline">
+      <span class="count" id="count"></span>
+    </div>
+    <div class="keys"><kbd>Space</kbd> play or pause · <kbd>←</kbd> <kbd>→</kbd> step · <kbd>P</kbd> predict mode</div>
+  </div>
+</section>
+
+<section id="theory">
+  <h2>How two pointers really works</h2>
+  <p class="lede">Thirteen strategies sound like thirteen things to memorise. They are not. Every one of them is the same idea, a search that throws away candidates it can prove useless, applied to one of three shapes with one of four kinds of proof.</p>
+  <div class="prose">
+    <h3>The search-space view</h3>
+    <p>Every problem here has a set of candidate answers: all pairs (i, j), all positions, all ways to split. Brute force looks at every candidate. Two pointers keeps a small frontier, usually the two indices, and at each step proves that some candidates can never be the answer, then discards them without looking. Pair sum discards a whole row or column of the n × n pair grid per step. That is why n² candidates are settled in n steps.</p>
+    <h3>Three shapes</h3>
+  </div>
+  <div class="shapes">
+    <div class="shape"><h3>Converging</h3>
+      <div class="mini"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="minip"><span class="p1" style="left:4px">▲ l</span><span class="p2" style="left:158px">▲ r</span></div>
+      <div class="inv">Every candidate outside [l, r] is already settled.</div>
+      <p>Start at both ends and move inward. Strategies 1–6.</p></div>
+    <div class="shape"><h3>Same direction</h3>
+      <div class="mini"><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i><i></i><i></i></div>
+      <div class="minip"><span class="p1" style="left:90px">▲ w</span><span class="p2" style="left:150px">▲ r</span></div>
+      <div class="inv">Everything behind the slower pointer is final.</div>
+      <p>Both move forward, at different speeds or with a gap. Strategies 7–9 and 13.</p></div>
+    <div class="shape"><h3>One per sequence</h3>
+      <div class="mini"><i class="f"></i><i></i><i></i><i></i><i></i></div>
+      <div class="minip"><span class="p1" style="left:32px">▲ i</span></div>
+      <div class="mini"><i class="f"></i><i class="f"></i><i></i><i></i><i></i></div>
+      <div class="minip"><span class="p2" style="left:62px">▲ j</span></div>
+      <div class="inv">Everything before i and j is already resolved.</div>
+      <p>One pointer per input, advancing the side that cannot match later. Strategy 10. Strategies 11 and 12 are variants that move outward or from the right.</p></div>
+  </div>
+  <div class="prose">
+    <h3 style="margin-top:22px">Four kinds of proof</h3>
+    <p>Every pointer move needs a one-sentence reason. There are only four kinds, and naming the kind tells you what to say in an interview.</p>
+  </div>
+  <div class="tblwrap"><table class="tbl">
+    <thead><tr><th>Proof</th><th>The sentence you say</th><th>Used by</th></tr></thead>
+    <tbody>
+      <tr><td><b>Elimination</b></td><td>“This candidate is too big even with the smallest partner left, so nothing that uses it can work.”</td><td>1 Pair sum, 2 k-Sum, 3 Counting, 9 Gap, 10 Two sequences</td></tr>
+      <tr><td><b>Dominance or exchange</b></td><td>“Any answer that keeps this side is no better than one I have already measured,” or “swapping my choice into any optimal answer keeps it optimal.”</td><td>4 Container, 6 Greedy pairing</td></tr>
+      <tr><td><b>Settled state</b></td><td>“The answer at this index depends only on what I have already seen on its side.”</td><td>5 Trapping water</td></tr>
+      <tr><td><b>Invariant</b></td><td>“After every step, this region is exactly right, and the unknown region got smaller.”</td><td>7 Read/write, 8 Partition, 11 Expand, 12 Scan from right, 13 Fast and slow</td></tr>
+    </tbody></table></div>
+  <div class="proof"><h3>Why it is O(n): the shrinking-distance argument</h3>
+    <p style="margin:0">For converging pointers, track d = r − l. Every iteration moves at least one pointer inward, so d drops by at least 1. It starts at n − 1 and the loop stops at 0, so there are at most n − 1 iterations. Inner skip loops, such as 3Sum's duplicate skipping, also shrink d, so they are paid for by the same budget. For same-direction pointers, track d = 2n − i − j. Each pointer only moves forward, so there are at most 2n moves in total. This is the argument to give when an interviewer asks, “Isn't that nested while loop O(n²)?”</p></div>
+  <div class="prose">
+    <h3>Three decisions that cause most bugs</h3>
+  </div>
+  <div class="tblwrap"><table class="tbl">
+    <thead><tr><th>Decision</th><th>Rule</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td><b>Loop condition</b></td><td><code>l &lt; r</code> when the answer needs two different elements. <code>l &lt;= r</code> when every element must be handled once, including a lone middle one.</td><td>Pair sum uses <code>l &lt; r</code>. Boats, squares of a sorted array and the Dutch flag (<code>mid &lt;= high</code>) need the equals.</td></tr>
+      <tr><td><b>Can I sort?</b></td><td>Sort freely when the output is values, counts or a yes/no answer. If you must return original indices, sort an array of indices, or use a hash map.</td><td>3Sum returns values, so sort. Two Sum returns indices, so use a hash map.</td></tr>
+      <tr><td><b>What about duplicates?</b></td><td>Decide which of three things the problem counts: pairs of indices (never skip), unique value pairs (skip after each hit), or unique output tuples (skip anchors and inner values).</td><td>Counting pairs below a target counts indices. K-diff pairs counts unique values. 3Sum wants unique triplets.</td></tr>
+    </tbody></table></div>
+</section>
+
+<section id="atlas">
+  <h2>The 13 strategies</h2>
+  <p class="lede">Each card answers the same questions: what signals it, what stays true, how the pointers move and why that is safe, which loop condition to write, how fast it is, the template, the traps, and which problems to practise. Use “Run it” to load the strategy into the player. Interview weight says how often the strategy's problems appear in the standard interview lists.</p>
+  <div class="legend" id="legendA"></div>
+  <div id="atlasBox"></div>
+</section>
+
+<section id="choose">
+  <h2>Which strategy fits?</h2>
+  <p class="lede">Answer two or three questions about a problem you are looking at. This is the reasoning to do in the first minute of an interview, before you write any code.</p>
+  <div class="card chooser" id="chooseBox"></div>
+</section>
+
+<section id="loop">
+  <h2>Solve every problem with the same seven steps</h2>
+  <p class="lede">The loop is how you reach an answer for a problem you have never seen. Switch the example: the steps stay the same, only what you say at each step changes.</p>
+  <div class="row" id="loopEx" role="group" aria-label="Example problem"></div>
+  <div class="loop" id="loopSteps"></div>
+  <div class="track"><div id="loopTrack"></div></div>
+  <div class="count" id="loopTime"></div>
+  <div class="card" id="loopCard"></div>
+  <div class="row" style="margin-top:12px"><button class="chip" id="loopPrev" type="button">Previous step</button><button class="chip" id="loopNext" type="button">Next step</button><span class="count">Stuck on step 5 for 8 minutes? Go back to step 4 and restate the bottleneck.</span></div>
+</section>
+
+<section id="quiz">
+  <h2>Check yourself</h2>
+  <p class="lede">Twelve questions across the strategies. Each answer explains itself, so a wrong answer still teaches you something.</p>
+  <div class="card quiz" id="quizBox"></div>
+</section>
+
+<section id="practice">
+  <h2>Practise in this order</h2>
+  <p class="lede">One or two problems per strategy, easiest first. Give each one 20 minutes before opening a hint, and open one hint at a time. Track solved problems and re-solves in the handbook, so every topic shares one record.</p>
+  <div class="legend" id="legendP"></div>
+  <div class="row" id="pfilter" role="group" aria-label="Filter problems" style="margin:6px 0"></div>
+  <div class="progress" id="progress"></div>
+  <div class="plist" id="plist"></div>
+</section>
+</main>
+<footer>Every algorithm in the player was checked against a brute-force solution on thousands of random inputs. Part of your DSA course: module M3, two pointers.</footer>
+<script>
+// ===== trace builders: each returns an array of frames =====
+function tracePair(a, t) {
+  const n = a.length, F = [];
+  let l = 0, r = n - 1;
+  let dead = new Set();
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: a.slice(), ptrs: [{ n: 'l', i: l, c: 'p1' }, { n: 'r', i: r, c: 'p2' }],
+    vars: [['l', l], ['r', r], ['a[l]', a[l] ?? '–'], ['a[r]', a[r] ?? '–'], ['target', t]],
+    fade: [l, r], dead: new Set(dead), cur: [l, r]
+  }, extra));
+  snap(2, `Start with the smallest value (l = 0) and the largest (r = ${n - 1}). Every pair is still possible.`);
+  while (true) {
+    if (!(l < r)) { snap(3, `l < r is false. No pairs are left, so no two values sum to ${t}.`, { cur: null }); snap(9, 'Return null.', { cur: null, end: true }); break; }
+    snap(3, `l < r holds (${l} < ${r}), so at least one pair remains.`);
+    const s = a[l] + a[r];
+    const vs = [['s', s]];
+    snap(4, `s = a[l] + a[r] = ${a[l]} + ${a[r]} = ${s}.`, { vars: [['l', l], ['r', r], ['a[l]', a[l]], ['a[r]', a[r]], ['s', s], ['target', t]] });
+    const kind = s === t ? 0 : s < t ? 1 : 2;
+    const ask = { q: `s = ${s}, target = ${t}. What happens next?`, opts: ['Return [l, r]: found', 'l++: a[l] is too small for every partner', 'r--: a[r] is too big for every partner'], ans: kind };
+    if (kind === 0) { snap(5, `s equals the target. Return [${l}, ${r}].`, { hit: [l, r], ask, end: true, vars: [['l', l], ['r', r], ['s', s], ['target', t]] }); break; }
+    if (kind === 1) {
+      for (let j = l + 1; j <= r; j++) dead.add(l * n + j);
+      snap(6, `${s} < ${t}. Even the largest partner left (${a[r]}) is not enough for a[l] = ${a[l]}, so every pair using l is ruled out. l++.`, { ask, vars: [['l', l], ['r', r], ['s', s], ['target', t]] });
+      l++;
+    } else {
+      for (let i = l; i < r; i++) dead.add(i * n + r);
+      snap(7, `${s} > ${t}. Even the smallest partner left (${a[l]}) is too much for a[r] = ${a[r]}, so every pair using r is ruled out. r--.`, { ask, vars: [['l', l], ['r', r], ['s', s], ['target', t]] });
+      r--;
+    }
+  }
+  return F;
+}
+function traceDedup(a0) {
+  let a = a0.slice(); const n = a.length, F = [];
+  let w = 1, r = 1;
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: a.slice(), ptrs: [{ n: 'w', i: Math.min(w, n), c: 'p1' }, { n: 'r', i: Math.min(r, n), c: 'p2' }],
+    vars: [['w', w], ['r', r], ['a[r]', r < n ? a[r] : '–'], ['a[w-1]', a[w - 1]]],
+    prefix: w
+  }, extra));
+  if (n === 0) { F.push({ line: 9, note: 'Empty array: return 0.', arr: [], ptrs: [], vars: [], end: true }); return F; }
+  snap(2, 'w = 1: a[0] on its own is already a valid output. a[0..w) is the finished prefix.');
+  for (r = 1; r < n; r++) {
+    snap(3, `r = ${r}: read the next element.`);
+    const x = a[r], last = a[w - 1];
+    const ask = { q: `a[r] = ${x}, last kept a[w-1] = ${last}. Keep or skip?`, opts: ['Keep: write it at w', 'Skip: it is a duplicate'], ans: x !== last ? 0 : 1 };
+    if (x !== last) {
+      snap(4, `a[r] = ${x} differs from the last kept value ${last}, so it belongs in the output.`, { ask });
+      a[w] = x;
+      snap(5, `Write ${x} at index ${w}. The write pointer never passes the read pointer, so no unread value is overwritten.`, { wrote: w });
+      w++;
+      snap(6, `w++. The finished prefix is now a[0..${w}).`);
+    } else {
+      snap(4, `a[r] = ${x} equals the last kept value. Skip it; nothing is written.`, { ask });
+    }
+  }
+  snap(3, `r = ${n} is past the end. Every element has been read.`);
+  snap(9, `Return w = ${w}. The answer is the first ${w} values: [${a.slice(0, w).join(', ')}].`, { end: true });
+  return F;
+}
+function traceDutch(a0) {
+  let a = a0.slice(); const n = a.length, F = [];
+  let low = 0, mid = 0, high = n - 1;
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: a.slice(), ptrs: [{ n: 'low', i: low, c: 'p1' }, { n: 'mid', i: mid, c: 'p3' }, { n: 'high', i: high, c: 'p2' }],
+    vars: [['low', low], ['mid', mid], ['high', high], ['a[mid]', mid < n ? a[mid] : '–']],
+    regions: [low, mid, high]
+  }, extra));
+  snap(2, 'Four regions: [0, low) holds 0s, [low, mid) holds 1s, [mid, high] is unknown, (high, end) holds 2s. Right now everything is unknown.');
+  while (true) {
+    if (!(mid <= high)) { snap(3, 'mid > high: the unknown region is empty, so the array is sorted.'); snap(12, 'Return the array, sorted in one pass.', { end: true }); break; }
+    snap(3, `mid <= high (${mid} <= ${high}): ${high - mid + 1} unknown value(s) left.`);
+    const v = a[mid];
+    const ask = { q: `a[mid] = ${v}. Which rule applies?`, opts: ['0: swap with low, then low++ and mid++', '1: just mid++', '2: swap with high, then high-- (mid stays)'], ans: v };
+    if (v === 0) {
+      snap(4, 'a[mid] is 0, so it belongs in the 0s region.', { ask });
+      [a[low], a[mid]] = [a[mid], a[low]];
+      const ol = low; low++; mid++;
+      snap(5, `Swap a[${ol}] and a[${mid - 1}], then low++ and mid++. What came from low was a 1 (or mid itself), already classified, so mid can advance.`);
+    } else if (v === 1) {
+      snap(6, 'a[mid] is 1, so it is already in the right region.', { ask });
+      mid++;
+      snap(7, 'mid++. The 1s region grows by one.');
+    } else {
+      snap(8, 'a[mid] is 2, so it belongs at the end.', { ask });
+      [a[mid], a[high]] = [a[high], a[mid]];
+      high--;
+      snap(9, `Swap with a[${high + 1}], then high--. mid does not move: the value that came from high has not been examined yet.`);
+    }
+  }
+  return F;
+}
+function traceContainer(h) {
+  const n = h.length, F = [];
+  let l = 0, r = n - 1, best = 0;
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: h.slice(), ptrs: [{ n: 'l', i: l, c: 'p1' }, { n: 'r', i: r, c: 'p2' }],
+    vars: [['l', l], ['r', r], ['h[l]', h[l] ?? '–'], ['h[r]', h[r] ?? '–'], ['best', best]],
+    fade: [l, r], box: l < r ? { lo: l, hi: r, level: Math.min(h[l], h[r]) } : null
+  }, extra));
+  snap(2, `Start with the widest container: l = 0, r = ${n - 1}, best = 0.`);
+  while (true) {
+    if (!(l < r)) { snap(3, 'l < r is false. Every line has been retired.', { box: null }); snap(9, `Return best = ${best}.`, { box: null, end: true }); break; }
+    snap(3, `l < r holds (${l} < ${r}).`);
+    const m = Math.min(h[l], h[r]), area = (r - l) * m;
+    snap(4, `area = (r − l) × min(h[l], h[r]) = ${r - l} × ${m} = ${area}.`, { vars: [['l', l], ['r', r], ['area', area], ['best', best]] });
+    best = Math.max(best, area);
+    snap(5, `best = max(best, area) = ${best}.`, { vars: [['l', l], ['r', r], ['area', area], ['best', best]] });
+    const k = h[l] < h[r] ? 0 : 1;
+    const ask = { q: `h[l] = ${h[l]}, h[r] = ${h[r]}. Which line is finished?`, opts: ['l: it is the shorter side, l++', 'r: it is the shorter side (or a tie), r--'], ans: k };
+    if (k === 0) { snap(6, `h[l] = ${h[l]} is shorter. Every container that keeps l is narrower and no taller, so l can never do better. l++.`, { ask }); l++; }
+    else { snap(7, `h[r] = ${h[r]} is shorter or equal. Every container that keeps r is narrower and no taller. r--.`, { ask }); r--; }
+  }
+  return F;
+}
+function traceTrap(h) {
+  const n = h.length, F = [];
+  let l = 0, r = n - 1, lm = 0, rm = 0, water = 0;
+  const filled = new Array(n).fill(0);
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: h.slice(), ptrs: [{ n: 'l', i: l, c: 'p1' }, { n: 'r', i: r, c: 'p2' }],
+    vars: [['l', l], ['r', r], ['leftMax', lm], ['rightMax', rm], ['water', water]],
+    fade: [l, r], filled: filled.slice()
+  }, extra));
+  snap(2, 'Water at i is min(max on the left, max on the right) − h[i]. Keep only the two running maxima.');
+  while (true) {
+    if (!(l < r)) { snap(3, 'l < r is false. Every bar has been settled.'); snap(10, `Return water = ${water}.`, { end: true }); break; }
+    snap(3, `l < r holds (${l} < ${r}).`);
+    const k = h[l] < h[r] ? 0 : 1;
+    const ask = { q: `h[l] = ${h[l]}, h[r] = ${h[r]}. Which side is settled?`, opts: ['Left: h[l] < h[r]', 'Right: h[r] ≤ h[l]'], ans: k };
+    if (k === 0) {
+      snap(4, `h[l] = ${h[l]} < h[r] = ${h[r]}. Something on the right is at least ${h[r]}, so leftMax alone decides the water at l.`, { ask });
+      lm = Math.max(lm, h[l]); const add = lm - h[l]; water += add; filled[l] = add;
+      snap(5, add > 0 ? `leftMax = ${lm}. Pour ${lm} − ${h[l]} = ${add} at index ${l}. l++.` : `h[l] = ${h[l]} is a new leftMax, so it holds no water. l++.`);
+      l++;
+    } else {
+      snap(6, `h[r] = ${h[r]} ≤ h[l] = ${h[l]}. Something on the left is at least ${h[l]}, so rightMax alone decides the water at r.`, { ask });
+      rm = Math.max(rm, h[r]); const add = rm - h[r]; water += add; filled[r] = add;
+      snap(7, add > 0 ? `rightMax = ${rm}. Pour ${rm} − ${h[r]} = ${add} at index ${r}. r--.` : `h[r] = ${h[r]} is a new rightMax, so it holds no water. r--.`);
+      r--;
+    }
+  }
+  return F;
+}
+
+function traceThreeSum(a0) {
+  const a = a0.slice().sort((x, y) => x - y), n = a.length, F = [], out = [];
+  let i = 0, l = 1, r = n - 1;
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: a.slice(),
+    ptrs: [{ n: 'i', i, c: 'p3' }, { n: 'l', i: l, c: 'p1' }, { n: 'r', i: r, c: 'p2' }],
+    vars: [['i', i], ['l', l], ['r', r], ['found', out.length ? out.map(t => `[${t.join(',')}]`).join(' ') : 'none']],
+    fade: [i, n - 1]
+  }, extra));
+  snap(2, `Sorted: [${a.join(', ')}]. Fix one anchor a[i], then find pairs to its right that sum to −a[i].`);
+  for (i = 0; i < n - 2; i++) {
+    l = i + 1; r = n - 1;
+    snap(3, `Anchor i = ${i}, a[i] = ${a[i]}. Now we need a[l] + a[r] = ${-a[i]}.`);
+    if (i > 0 && a[i] === a[i - 1]) { snap(4, `a[i] = ${a[i]} equals the previous anchor. Every triplet it could start was already found, so skip it.`); continue; }
+    snap(5, `l = ${l}, r = ${r}: a converging pair search on a[${l}..${r}].`);
+    while (l < r) {
+      const s = a[i] + a[l] + a[r];
+      const k = s < 0 ? 0 : s > 0 ? 1 : 2;
+      const ask = { q: `a[i] + a[l] + a[r] = ${a[i]} + ${a[l]} + ${a[r]} = ${s}. Next move?`, opts: ['l++: the sum is too small', 'r--: the sum is too big', 'Record the triplet, skip duplicates, move both'], ans: k };
+      snap(7, `s = ${a[i]} + ${a[l]} + ${a[r]} = ${s}.`, { vars: [['i', i], ['l', l], ['r', r], ['s', s]] });
+      if (k === 0) { snap(8, `${s} < 0, so a[l] is too small for every partner left. l++.`, { ask }); l++; }
+      else if (k === 1) { snap(9, `${s} > 0, so a[r] is too big for every partner left. r--.`, { ask }); r--; }
+      else {
+        out.push([a[i], a[l], a[r]]);
+        snap(11, `Found [${a[i]}, ${a[l]}, ${a[r]}]. Record it.`, { ask, hit: [i, l, r] });
+        let moved = false;
+        while (l < r && a[l] === a[l + 1]) { l++; moved = true; }
+        while (l < r && a[r] === a[r - 1]) { r--; moved = true; }
+        if (moved) snap(13, 'Skip copies of a[l] and a[r]: they would only rebuild the same triplet. Skipping happens after recording, never before.');
+        l++; r--;
+        snap(14, 'Move both pointers inward: with a[l] fixed, only a different a[r] could sum to zero, and vice versa.');
+      }
+    }
+  }
+  snap(18, `Return ${out.length} unique triplet(s): ${out.map(t => `[${t.join(', ')}]`).join(' ') || 'none'}. O(n²) time after an O(n log n) sort.`, { end: true, ptrs: [] });
+  F.out = out;
+  return F;
+}
+function traceCountPairs(a0, t) {
+  const a = a0.slice().sort((x, y) => x - y), n = a.length, F = [];
+  let l = 0, r = n - 1, count = 0;
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: a.slice(), ptrs: [{ n: 'l', i: l, c: 'p1' }, { n: 'r', i: r, c: 'p2' }],
+    vars: [['l', l], ['r', r], ['count', count], ['target', t]], fade: [l, r]
+  }, extra));
+  snap(2, `Count pairs i < j with a[i] + a[j] < ${t}. Brute force checks all ${n * (n - 1) / 2} pairs; this counts whole ranges at once.`);
+  while (true) {
+    if (!(l < r)) { snap(3, 'l < r is false: every pair has been counted or ruled out.'); snap(11, `Return count = ${count}.`, { end: true }); break; }
+    const s = a[l] + a[r];
+    const ask = { q: `a[l] + a[r] = ${s}, target ${t}. What now?`, opts: [`Add r − l = ${r - l} pairs, then l++`, 'r--: a[r] is too big with every partner'], ans: s < t ? 0 : 1 };
+    if (s < t) {
+      const sel = []; for (let j = l + 1; j <= r; j++) sel.push(j);
+      snap(4, `${a[l]} + ${a[r]} = ${s} < ${t}. Every index in (l, r] is at most a[r], so a[l] pairs with all of them.`, { ask, sel });
+      count += r - l;
+      snap(5, `count += r − l = ${r - l}. count is now ${count}.`, { sel });
+      l++;
+      snap(6, 'l++: every pair using a[l] is now counted.');
+    } else {
+      snap(8, `${a[l]} + ${a[r]} = ${s} ≥ ${t}. a[r] plus the smallest partner left is already too big, so no pair with r counts. r--.`, { ask });
+      r--;
+    }
+  }
+  F.count = count;
+  return F;
+}
+function traceBoats(w0, limit) {
+  const w = w0.slice().sort((x, y) => x - y), n = w.length, F = [];
+  let l = 0, r = n - 1, boats = 0;
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: w.slice(), ptrs: [{ n: 'l', i: l, c: 'p1' }, { n: 'r', i: r, c: 'p2' }],
+    vars: [['l', l], ['r', r], ['boats', boats], ['limit', limit]], fade: [l, r]
+  }, extra));
+  snap(3, `Sorted weights: [${w.join(', ')}], at most 2 people per boat, limit ${limit}.`);
+  while (true) {
+    if (!(l <= r)) { snap(4, 'l > r: everyone is in a boat.'); snap(9, `Return ${boats} boats.`, { end: true }); break; }
+    const can = w[l] + w[r] <= limit;
+    const ask = { q: `Heaviest w[r] = ${w[r]}, lightest w[l] = ${w[l]}. Can they share?`, opts: [`Yes: ${w[l]} + ${w[r]} ≤ ${limit}, both board`, `No: the heaviest goes alone`], ans: can ? 0 : 1 };
+    if (l === r) { snap(5, `Only one person left (${w[r]}). They take a boat alone.`, { sel: [r] }); l++; }
+    else if (can) { snap(5, `${w[l]} + ${w[r]} = ${w[l] + w[r]} ≤ ${limit}: the heaviest shares with the lightest. If they could share with anyone, swapping that partner for the lightest keeps every boat valid.`, { ask, sel: [l, r] }); l++; }
+    else snap(5, `${w[l]} + ${w[r]} > ${limit}: if the heaviest cannot share with the lightest, they cannot share with anyone. They go alone.`, { ask, sel: [r] });
+    r--; boats++;
+    snap(7, `boats = ${boats}.`);
+  }
+  F.boats = boats;
+  return F;
+}
+function traceKDiff(a0, k) {
+  const a = a0.slice().sort((x, y) => x - y), n = a.length, F = [];
+  let i = 0, j = 1, count = 0;
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: a.slice(), ptrs: [{ n: 'i', i: Math.min(i, n), c: 'p1' }, { n: 'j', i: Math.min(j, n), c: 'p2' }],
+    vars: [['i', i], ['j', j], ['a[j] − a[i]', i < n && j < n ? a[j] - a[i] : '–'], ['k', k], ['count', count]]
+  }, extra));
+  snap(3, `Sorted: [${a.join(', ')}]. Both pointers only move forward, keeping the gap a[j] − a[i] near k = ${k}.`);
+  while (i < n && j < n) {
+    const d = a[j] - a[i];
+    const kind = i === j || d < k ? 0 : d > k ? 1 : 2;
+    const ask = { q: i === j ? 'i and j point to the same element. Move which?' : `a[j] − a[i] = ${d}, k = ${k}. Move which?`, opts: ['j++: the gap is too small (or i = j)', 'i++: the gap is too big', 'Count it, then move i past all copies'], ans: kind };
+    if (kind === 0) { snap(5, i === j ? 'i = j, and a pair needs two different elements, so j++.' : `Gap ${d} < ${k}: only a larger a[j] can widen it. j++.`, { ask }); j++; }
+    else if (kind === 1) { snap(6, `Gap ${d} > ${k}: a larger a[j] only makes it worse, so a[i] is finished. i++.`, { ask }); i++; }
+    else {
+      count++;
+      snap(8, `Gap = ${k}: pair (${a[i]}, ${a[j]}). count = ${count}.`, { ask, hit: [i, j] });
+      i++;
+      while (i < n && a[i] === a[i - 1]) i++;
+      snap(9, 'Move i past every copy of the value just paired, so the same pair of values is never counted twice.');
+    }
+  }
+  snap(12, `Return ${count} unique pair(s). Each pointer moves forward at most n times: O(n) after sorting.`, { end: true });
+  F.count = count;
+  return F;
+}
+function traceSubseq(s, t) {
+  const F = []; let i = 0, j = 0;
+  const cls0 = () => s.split('').map((_, k) => k < i ? 'hit' : ''), cls1 = () => t.split('').map((_, k) => k < j ? 'pre' : '');
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: s.split(''), rows: [{ name: 's', arr: s.split(''), cls: cls0() }, { name: 't', arr: t.split(''), cls: cls1() }],
+    ptrs: [{ n: 'i', i, c: 'p1', row: 0 }, { n: 'j', i: j, c: 'p2', row: 1 }],
+    vars: [['i', i], ['j', j], ['s[i]', s[i] ?? '–'], ['t[j]', t[j] ?? '–']]
+  }, extra));
+  snap(2, `Is "${s}" a subsequence of "${t}"? One pointer per string. j always moves; i moves only on a match.`);
+  while (i < s.length && j < t.length) {
+    const m = s[i] === t[j];
+    const ask = { q: `s[i] = '${s[i]}', t[j] = '${t[j]}'. Which pointers move?`, opts: ['Both: it is a match', 'Only j: no match'], ans: m ? 0 : 1 };
+    if (m) { snap(4, `Match '${s[i]}'. Taking the earliest possible match in t never hurts: it leaves the most of t for the rest of s.`, { ask }); i++; }
+    else snap(4, `'${s[i]}' ≠ '${t[j]}'. This t[j] can never help s[i]: skip it.`, { ask });
+    j++;
+    snap(5, `j++.`);
+  }
+  snap(7, i === s.length ? `i reached the end of s: every character was matched in order. Return true.` : `t ran out with ${s.length - i} character(s) of s unmatched. Return false.`, { end: true });
+  F.res = i === s.length;
+  return F;
+}
+function traceMerge(A0, m, B) {
+  const A = A0.slice(0, m).concat(new Array(B.length).fill(0)), n = B.length, F = [];
+  let i = m - 1, j = n - 1, k = m + n - 1;
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: A.slice(),
+    rows: [{ name: 'A', arr: A.slice(), cls: A.map((_, x) => x > k ? 'pre' : x >= m && x <= k ? 'unk' : '') }, { name: 'B', arr: B.slice(), cls: B.map((_, x) => x > j ? 'out' : '') }],
+    ptrs: [{ n: 'i', i: Math.max(i, 0), c: 'p1', row: 0, gone: i < 0 }, { n: 'k', i: Math.max(k, 0), c: 'p3', row: 0, gone: k < 0 }, { n: 'j', i: Math.max(j, 0), c: 'p2', row: 1, gone: j < 0 }],
+    vars: [['i', i], ['j', j], ['k', k], ['A[i]', i >= 0 ? A[i] : '–'], ['B[j]', j >= 0 ? B[j] : '–']]
+  }, extra));
+  snap(2, `Merge B into A in place. Filling from the back means we only overwrite slots that are empty or already copied.`);
+  while (j >= 0) {
+    const takeA = i >= 0 && A[i] > B[j];
+    const ask = { q: i >= 0 ? `A[i] = ${A[i]}, B[j] = ${B[j]}. Which goes to A[k]?` : `A is exhausted. Which goes to A[k]?`, opts: ['A[i], then i--', 'B[j], then j--'], ans: takeA ? 0 : 1 };
+    if (takeA) { snap(4, `${A[i]} > ${B[j]}: the largest remaining value is A[i].`, { ask }); A[k] = A[i]; i--; snap(5, `A[${k}] = ${A[k + 0]}. i--.`); }
+    else { snap(4, i >= 0 ? `${A[i]} ≤ ${B[j]}: the largest remaining value is B[j].` : 'A has nothing left, so B[j] is next.', { ask }); A[k] = B[j]; j--; snap(7, `A[${k}] = ${A[k]}. j--.`); }
+    k--;
+    snap(9, 'k--. Invariant: A[k+1..] holds the largest values in final order, and k > i, so no unread A value is overwritten.');
+  }
+  snap(3, 'j < 0: B is fully merged. Anything left in A is already in place. O(m + n), no extra array.', { end: true });
+  F.res = A;
+  return F;
+}
+function tracePalin(s) {
+  const n = s.length, F = []; let start = 0, len = n ? 1 : 0, l = 0, r = 0, c = 0;
+  const best = () => { const o = []; for (let x = start; x < start + len; x++) o.push(x); return o; };
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: s.split(''), ptrs: [{ n: 'l', i: Math.max(l, 0), c: 'p1', gone: l < 0 }, { n: 'r', i: Math.min(r, n - 1), c: 'p2', gone: r >= n }],
+    vars: [['center', c % 2 ? `between ${(c - 1) / 2} and ${(c + 1) / 2}` : `${c / 2}`], ['l', l], ['r', r], ['best', `"${s.slice(start, start + len)}"`]], best: best()
+  }, extra));
+  if (!n) { F.push({ line: 10, note: 'Empty string.', arr: [], ptrs: [], vars: [], end: true }); return F; }
+  snap(2, `Every palindrome has a center: a character (odd length) or a gap between two characters (even length). ${2 * n - 1} centers in total.`);
+  for (c = 0; c < 2 * n - 1; c++) {
+    l = Math.floor(c / 2); r = l + (c % 2);
+    snap(4, c % 2 ? `Even center between ${l} and ${r}.` : `Odd center at ${l}.`);
+    while (l >= 0 && r < n && s[l] === s[r]) {
+      const win = []; for (let x = l; x <= r; x++) win.push(x);
+      snap(5, `s[${l}] = s[${r}] = '${s[l]}': the palindrome extends to "${s.slice(l, r + 1)}". Move outward.`, { sel: win });
+      l--; r++;
+    }
+    snap(5, l < 0 || r >= n ? 'Hit the edge of the string: stop expanding.' : `s[${l}] = '${s[l]}' ≠ s[${r}] = '${s[r]}': this palindrome cannot grow.`);
+    if (r - l - 1 > len) { start = l + 1; len = r - l - 1; snap(8, `New longest: "${s.slice(start, start + len)}" (length ${len}).`); }
+  }
+  snap(10, `Return "${s.slice(start, start + len)}". O(n²) time, O(1) space: each center expands at most n/2 times.`, { end: true, ptrs: [] });
+  F.res = s.slice(start, start + len);
+  return F;
+}
+function traceNextPerm(a0) {
+  const a = a0.slice(), n = a.length, F = [];
+  let i = n - 2, j = -1, l = -1, r = -1;
+  const sfx = () => { const o = []; for (let x = Math.max(i + 1, 0); x < n; x++) o.push(x); return o; };
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: a.slice(), ptrs: [{ n: 'i', i: Math.max(i, 0), c: 'p3', gone: i < 0 }].concat(j >= 0 ? [{ n: 'j', i: j, c: 'p2' }] : []).concat(l >= 0 && l < r ? [{ n: 'l', i: l, c: 'p1' }, { n: 'r', i: r, c: 'p2' }] : []),
+    vars: [['i', i], ['j', j < 0 ? '–' : j]], sel: sfx()
+  }, extra));
+  snap(2, 'Scan from the right for the first value smaller than its right neighbour. Everything to its right is a descending run: already the largest arrangement of those values.');
+  while (i >= 0 && a[i] >= a[i + 1]) { snap(3, `a[${i}] = ${a[i]} ≥ a[${i + 1}] = ${a[i + 1]}: still descending. i--.`); i--; }
+  if (i >= 0) {
+    snap(4, `a[${i}] = ${a[i]} < a[${i + 1}] = ${a[i + 1]}. This is the pivot: the leftmost position that must change.`);
+    j = n - 1;
+    while (a[j] <= a[i]) { snap(6, `a[${j}] = ${a[j]} ≤ ${a[i]}: too small to replace the pivot. j--.`); j--; }
+    snap(6, `a[${j}] = ${a[j]} is the smallest value in the suffix that is larger than the pivot.`);
+    [a[i], a[j]] = [a[j], a[i]];
+    snap(7, `Swap pivot and a[${j}]. The suffix is still descending.`);
+    j = -1;
+  } else snap(4, 'No pivot: the whole array is descending, the last permutation. Reversing it gives the first.');
+  l = i + 1; r = n - 1;
+  snap(9, 'Reverse the suffix so it becomes ascending: the smallest arrangement after the new pivot value.');
+  while (l < r) { [a[l], a[r]] = [a[r], a[l]]; snap(11, `Swap a[${l}] and a[${r}].`); l++; r--; }
+  l = -1; r = -1;
+  snap(13, `Done: [${a.join(', ')}]. Two scans from the right and one reversal: O(n), in place.`, { end: true, sel: [] });
+  F.res = a;
+  return F;
+}
+function traceFloyd(a) {
+  const n = a.length, F = [];
+  let slow = a[0], fast = a[0], phase = 1;
+  const snap = (line, note, extra = {}) => F.push(Object.assign({
+    line, note, arr: a.slice(), ptrs: [{ n: 'slow', i: slow, c: 'p1' }, { n: 'fast', i: fast, c: 'p2' }],
+    vars: [['slow', slow], ['fast', fast], ['a[slow]', a[slow]], ['a[fast]', a[fast]], ['phase', phase]]
+  }, extra));
+  snap(2, 'Read the array as a linked list: from index x you move to index a[x]. Two indices point to the duplicate value, so the list must contain a cycle, and the duplicate is where the cycle starts.');
+  let guard = 0;
+  do {
+    slow = a[slow]; snap(4, `slow moves one step to a[slow] = ${slow}.`);
+    fast = a[a[fast]]; snap(5, `fast moves two steps to ${fast}.`);
+    guard++;
+  } while (slow !== fast && guard < 200);
+  snap(6, `slow = fast = ${slow}: they met inside the cycle.`, { hit: [slow] });
+  phase = 2; slow = a[0];
+  snap(7, 'Phase 2: restart slow from the beginning. Both now move one step at a time.');
+  while (slow !== fast) {
+    slow = a[slow]; fast = a[fast];
+    snap(9, `slow = ${slow}, fast = ${fast}.`);
+  }
+  snap(12, `They meet at ${slow}, the start of the cycle: the duplicate. The distance from the start to the cycle entry equals the distance from the meeting point to the entry. O(n) time, O(1) space, no modification.`, { end: true, hit: [slow] });
+  F.res = slow;
+  return F;
+}
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const lc = (n, slug, name) => ({ n, slug, name });
+
+/* ---------------- input parsing ---------------- */
+function nums(v, min, max, lo = -99, hi = 99) {
+  const raw = v.split(/[\s,]+/).filter(Boolean), x = raw.map(Number);
+  if (x.length < min || x.length > max || x.some(y => !Number.isInteger(y) || y < lo || y > hi)) return { err: `Enter ${min} to ${max} whole numbers between ${lo} and ${hi}, separated by commas.` };
+  return { x };
+}
+function intOf(v, name, lo = -999, hi = 999) { const t = Number(v); if (v.trim() === '' || !Number.isInteger(t) || t < lo || t > hi) return { err: `Enter a whole-number ${name}${lo >= 0 ? ` of at least ${lo}` : ''}.` }; return { t }; }
+const sortNote = (x, s) => x.join() !== s.join() ? 'Sorted for you, because this algorithm needs sorted input.' : '';
+
+/* ---------------- algorithms ---------------- */
+const ALGOS = [
+  { s: 1, id: 'pair', name: 'Pair sum', lc: 167, mode: 'cells', in1: 'Sorted array, e.g. 2, 7, 11, 15', in2: 'Target',
+    code: ['function pairSum(a, target) {', '  let l = 0, r = a.length - 1;', '  while (l < r) {', '    const s = a[l] + a[r];', '    if (s === target) return [l, r];', '    if (s < target) l++;', '    else r--;', '  }', '  return null;', '}'],
+    presets: [{ a: [1, 2, 4, 6, 8, 9, 14, 15], t: 13 }, { a: [-4, -1, 0, 3, 5, 9], t: 8 }, { a: [1, 3, 5, 7], t: 20 }],
+    run: d => tracePair(d.a, d.t), cap: d => `Sorted array, target ${d.t}`,
+    parse(v1, v2) { const a = nums(v1, 2, 10); if (a.err) return a; const t = intOf(v2, 'target'); if (t.err) return t; const s = a.x.slice().sort((p, q) => p - q); return { d: { a: s, t: t.t }, note: sortNote(a.x, s) }; } },
+  { s: 2, id: 'three', name: '3Sum', lc: 15, mode: 'cells', in1: 'Array, e.g. -1, 0, 1, 2, -1, -4', in2: null,
+    code: ['function threeSum(nums) {', '  const a = nums.sort((x, y) => x - y), out = [];', '  for (let i = 0; i < a.length - 2; i++) {', '    if (i > 0 && a[i] === a[i - 1]) continue;', '    let l = i + 1, r = a.length - 1;', '    while (l < r) {', '      const s = a[i] + a[l] + a[r];', '      if (s < 0) l++;', '      else if (s > 0) r--;', '      else {', '        out.push([a[i], a[l], a[r]]);', '        while (l < r && a[l] === a[l + 1]) l++;', '        while (l < r && a[r] === a[r - 1]) r--;', '        l++; r--;', '      }', '    }', '  }', '  return out;', '}'],
+    presets: [{ a: [-1, 0, 1, 2, -1, -4] }, { a: [-2, 0, 1, 1, 2] }, { a: [0, 0, 0, 0] }],
+    run: d => traceThreeSum(d.a), cap: () => 'Sorted array; i is the anchor, l and r search the rest',
+    parse(v1) { const a = nums(v1, 3, 10); if (a.err) return a; return { d: { a: a.x }, note: '' }; } },
+  { s: 3, id: 'count', name: 'Count pairs below a target', lc: 2824, mode: 'cells', in1: 'Array, e.g. -1, 1, 2, 3, 1', in2: 'Target',
+    code: ['function countPairs(a, target) {', '  let l = 0, r = a.length - 1, count = 0;', '  while (l < r) {', '    if (a[l] + a[r] < target) {', '      count += r - l;', '      l++;', '    } else {', '      r--;', '    }', '  }', '  return count;', '}'],
+    presets: [{ a: [-1, 1, 2, 3, 1], t: 2 }, { a: [1, 2, 3, 5, 8], t: 7 }, { a: [-6, 2, 5, -2, -7, -1, 3], t: -2 }],
+    run: d => traceCountPairs(d.a, d.t), cap: d => `Sorted array, target ${d.t}; violet cells are counted in one step`,
+    parse(v1, v2) { const a = nums(v1, 2, 10); if (a.err) return a; const t = intOf(v2, 'target'); if (t.err) return t; return { d: { a: a.x, t: t.t }, note: 'Sorted inside the algorithm: counting pairs does not depend on order.' }; } },
+  { s: 4, id: 'container', name: 'Container with most water', lc: 11, mode: 'bars', in1: 'Heights, e.g. 1, 8, 6, 2, 5', in2: null,
+    code: ['function maxArea(h) {', '  let l = 0, r = h.length - 1, best = 0;', '  while (l < r) {', '    const area = (r - l) * Math.min(h[l], h[r]);', '    best = Math.max(best, area);', '    if (h[l] < h[r]) l++;', '    else r--;', '  }', '  return best;', '}'],
+    presets: [{ a: [1, 8, 6, 2, 5, 4, 8, 3, 7] }, { a: [4, 3, 2, 1, 4] }, { a: [2, 5, 1, 6, 3, 6, 2] }],
+    run: d => traceContainer(d.a), cap: () => 'Line heights; the blue area is the current container',
+    parse(v1) { const a = nums(v1, 2, 12, 0, 99); if (a.err) return a; return { d: { a: a.x }, note: '' }; } },
+  { s: 5, id: 'trap', name: 'Trapping rain water', lc: 42, mode: 'bars', in1: 'Heights, e.g. 0, 1, 0, 2, 1', in2: null,
+    code: ['function trap(h) {', '  let l = 0, r = h.length - 1, lm = 0, rm = 0, water = 0;', '  while (l < r) {', '    if (h[l] < h[r]) {', '      lm = Math.max(lm, h[l]); water += lm - h[l]; l++;', '    } else {', '      rm = Math.max(rm, h[r]); water += rm - h[r]; r--;', '    }', '  }', '  return water;', '}'],
+    presets: [{ a: [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1] }, { a: [4, 2, 0, 3, 2, 5] }, { a: [5, 1, 2, 1, 4, 0, 3] }],
+    run: d => traceTrap(d.a), cap: () => 'Bar heights; blue fill is water poured so far',
+    parse(v1) { const a = nums(v1, 2, 12, 0, 99); if (a.err) return a; return { d: { a: a.x }, note: '' }; } },
+  { s: 6, id: 'boats', name: 'Boats to save people', lc: 881, mode: 'cells', in1: 'Weights, e.g. 3, 2, 2, 1', in2: 'Limit',
+    code: ['function numRescueBoats(w, limit) {', '  w.sort((x, y) => x - y);', '  let l = 0, r = w.length - 1, boats = 0;', '  while (l <= r) {', '    if (w[l] + w[r] <= limit) l++;', '    r--;', '    boats++;', '  }', '  return boats;', '}'],
+    presets: [{ a: [3, 2, 2, 1], t: 3 }, { a: [3, 5, 3, 4], t: 5 }, { a: [1, 2, 4, 5, 6, 7], t: 8 }],
+    run: d => traceBoats(d.a, d.t), cap: d => `Sorted weights, limit ${d.t}; violet = boarding this boat`,
+    parse(v1, v2) { const a = nums(v1, 1, 10, 1, 99); if (a.err) return a; const t = intOf(v2, 'limit', 1); if (t.err) return t; if (a.x.some(x => x > t.t)) return { err: 'Every weight must be at most the limit.' }; return { d: { a: a.x, t: t.t }, note: '' }; } },
+  { s: 7, id: 'dedup', name: 'Remove duplicates', lc: 26, mode: 'cells', in1: 'Sorted array, e.g. 1, 1, 2, 3, 3', in2: null,
+    code: ['function removeDuplicates(a) {', '  let w = 1;', '  for (let r = 1; r < a.length; r++) {', '    if (a[r] !== a[w - 1]) {', '      a[w] = a[r];', '      w++;', '    }', '  }', '  return w;', '}'],
+    presets: [{ a: [1, 1, 2, 3, 3, 3, 4, 5, 5] }, { a: [0, 0, 1, 1, 1, 2, 2, 3, 3, 4] }, { a: [7, 7, 7, 7] }],
+    run: d => traceDedup(d.a), cap: () => 'Sorted array; the shaded prefix is the finished output',
+    parse(v1) { const a = nums(v1, 1, 12); if (a.err) return a; const s = a.x.slice().sort((p, q) => p - q); return { d: { a: s }, note: sortNote(a.x, s) }; } },
+  { s: 8, id: 'dutch', name: 'Dutch national flag', lc: 75, mode: 'cells', in1: 'Only 0, 1 and 2, e.g. 2, 0, 1', in2: null,
+    code: ['function sortColors(a) {', '  let low = 0, mid = 0, high = a.length - 1;', '  while (mid <= high) {', '    if (a[mid] === 0) {', '      [a[low], a[mid]] = [a[mid], a[low]]; low++; mid++;', '    } else if (a[mid] === 1) {', '      mid++;', '    } else {', '      [a[mid], a[high]] = [a[high], a[mid]]; high--;', '    }', '  }', '  return a;', '}'],
+    presets: [{ a: [2, 0, 2, 1, 1, 0, 1, 2, 0] }, { a: [1, 2, 0, 2, 1, 0] }, { a: [2, 2, 2, 0, 0] }],
+    run: d => traceDutch(d.a), cap: () => 'Blue: 0s · grey: 1s · orange: 2s · dashed: not yet examined',
+    parse(v1) { const a = nums(v1, 1, 12, 0, 2); if (a.err) return { err: 'Enter 1 to 12 values, each 0, 1 or 2.' }; return { d: { a: a.x }, note: '' }; } },
+  { s: 9, id: 'kdiff', name: 'K-diff pairs', lc: 532, mode: 'cells', in1: 'Array, e.g. 3, 1, 4, 1, 5', in2: 'k',
+    code: ['function findPairs(a, k) {', '  a.sort((x, y) => x - y);', '  let i = 0, j = 1, count = 0;', '  while (i < a.length && j < a.length) {', '    if (i === j || a[j] - a[i] < k) j++;', '    else if (a[j] - a[i] > k) i++;', '    else {', '      count++; i++;', '      while (i < a.length && a[i] === a[i - 1]) i++;', '    }', '  }', '  return count;', '}'],
+    presets: [{ a: [3, 1, 4, 1, 5], t: 2 }, { a: [1, 3, 1, 5, 4], t: 0 }, { a: [1, 2, 3, 4, 5], t: 1 }],
+    run: d => traceKDiff(d.a, d.t), cap: d => `Sorted array, k = ${d.t}; both pointers only move right`,
+    parse(v1, v2) { const a = nums(v1, 2, 12); if (a.err) return a; const t = intOf(v2, 'k', 0); if (t.err) return t; return { d: { a: a.x, t: t.t }, note: 'Sorted inside the algorithm.' }; } },
+  { s: 10, id: 'subseq', name: 'Is subsequence', lc: 392, mode: 'cells', in1: 'String s, e.g. abc', in2: 'String t',
+    code: ['function isSubsequence(s, t) {', '  let i = 0, j = 0;', '  while (i < s.length && j < t.length) {', '    if (s[i] === t[j]) i++;', '    j++;', '  }', '  return i === s.length;', '}'],
+    presets: [{ s: 'abc', t: 'ahbgdc' }, { s: 'axc', t: 'ahbgdc' }, { s: 'ace', t: 'abcde' }],
+    run: d => traceSubseq(d.s, d.t), cap: () => 'Green: matched characters of s · shaded: characters of t already passed',
+    parse(v1, v2) { const s = v1.trim(), t = v2.trim(); if (s.length > 8 || t.length > 12 || !t.length) return { err: 'Enter s (up to 8 characters) and t (1 to 12 characters).' }; return { d: { s, t }, note: '' }; } },
+  { s: 10, id: 'merge', name: 'Merge sorted array from the back', lc: 88, mode: 'cells', in1: 'Sorted A, e.g. 1, 2, 3', in2: 'Sorted B, e.g. 2, 5, 6',
+    code: ['function merge(A, m, B, n) {', '  let i = m - 1, j = n - 1, k = m + n - 1;', '  while (j >= 0) {', '    if (i >= 0 && A[i] > B[j]) {', '      A[k] = A[i]; i--;', '    } else {', '      A[k] = B[j]; j--;', '    }', '    k--;', '  }', '}'],
+    presets: [{ a: [1, 2, 3], b: [2, 5, 6] }, { a: [4, 5, 6], b: [1, 2, 3] }, { a: [1, 7], b: [2, 3, 8, 9] }],
+    run: d => traceMerge(d.a, d.a.length, d.b), cap: () => 'A has room for B at the end; violet = final values placed from the back',
+    parse(v1, v2) { const a = nums(v1, 0, 6), b = nums(v2, 1, 6); if (a.err || b.err) return { err: 'Enter A (0 to 6 numbers) and B (1 to 6 numbers).' }; const sa = a.x.slice().sort((p, q) => p - q), sb = b.x.slice().sort((p, q) => p - q); return { d: { a: sa, b: sb }, note: sortNote(a.x.concat(b.x), sa.concat(sb)) }; } },
+  { s: 11, id: 'palin', name: 'Longest palindromic substring', lc: 5, mode: 'cells', in1: 'String, e.g. babad', in2: null,
+    code: ['function longestPalindrome(s) {', '  let start = 0, len = 1;', '  for (let c = 0; c < 2 * s.length - 1; c++) {', '    let l = Math.floor(c / 2), r = l + (c % 2);', '    while (l >= 0 && r < s.length && s[l] === s[r]) {', '      l--; r++;', '    }', '    if (r - l - 1 > len) { start = l + 1; len = r - l - 1; }', '  }', '  return s.slice(start, start + len);', '}'],
+    presets: [{ s: 'babad' }, { s: 'cbbd' }, { s: 'abacdfgdcabba' }],
+    run: d => tracePalin(d.s), cap: () => 'Violet: the palindrome around the current center · green underline: best so far',
+    parse(v1) { const s = v1.trim(); if (!s.length || s.length > 14) return { err: 'Enter a string of 1 to 14 characters.' }; return { d: { s }, note: '' }; } },
+  { s: 12, id: 'nextperm', name: 'Next permutation', lc: 31, mode: 'cells', in1: 'Array, e.g. 1, 3, 5, 4, 2', in2: null,
+    code: ['function nextPermutation(a) {', '  let i = a.length - 2;', '  while (i >= 0 && a[i] >= a[i + 1]) i--;', '  if (i >= 0) {', '    let j = a.length - 1;', '    while (a[j] <= a[i]) j--;', '    [a[i], a[j]] = [a[j], a[i]];', '  }', '  let l = i + 1, r = a.length - 1;', '  while (l < r) {', '    [a[l], a[r]] = [a[r], a[l]]; l++; r--;', '  }', '}'],
+    presets: [{ a: [1, 3, 5, 4, 2] }, { a: [1, 2, 3] }, { a: [3, 2, 1] }],
+    run: d => traceNextPerm(d.a), cap: () => 'Violet: the descending suffix to the right of i',
+    parse(v1) { const a = nums(v1, 1, 10); if (a.err) return a; return { d: { a: a.x }, note: '' }; } },
+  { s: 13, id: 'floyd', name: 'Find the duplicate number', lc: 287, mode: 'cells', in1: 'n + 1 values in 1..n, e.g. 1, 3, 4, 2, 2', in2: null,
+    code: ['function findDuplicate(a) {', '  let slow = a[0], fast = a[0];', '  do {', '    slow = a[slow];', '    fast = a[a[fast]];', '  } while (slow !== fast);', '  slow = a[0];', '  while (slow !== fast) {', '    slow = a[slow];', '    fast = a[fast];', '  }', '  return slow;', '}'],
+    presets: [{ a: [1, 3, 4, 2, 2] }, { a: [3, 1, 3, 4, 2] }, { a: [2, 5, 9, 6, 9, 3, 8, 9, 7, 1] }],
+    run: d => traceFloyd(d.a), cap: () => 'Pointers hold indices; from index x the next index is a[x]',
+    parse(v1) { const a = nums(v1, 2, 12, 1, 11); if (a.err) return a; const n = a.x.length - 1; if (a.x.some(x => x > n)) return { err: `With ${a.x.length} values, every value must be between 1 and ${n}.` }; return { d: { a: a.x }, note: '' }; } }
+];
+
+const S = { ai: 0, data: null, frames: [], k: 0, playing: false, speed: 1, predict: store.get('tp.predict', false), asked: null, timer: null, stats: null };
+
+function highlight(line) {
+  return esc(line)
+    .replace(/\b(function|let|const|while|if|else|return|for|null|do|continue)\b/g, '<span class="kw">$1</span>')
+    .replace(/(^|[^\w])(\d+)(?![\w])/g, '$1<span class="nm">$2</span>');
+}
+function presetLabel(A, p) { return p.s !== undefined ? (p.t !== undefined ? `"${p.s}" in "${p.t}"` : `"${p.s}"`) : p.b ? `[${p.a}] + [${p.b}]` : `[${p.a.join(', ')}]${p.t !== undefined ? `, ${A.in2.toLowerCase()} ${p.t}` : ''}`; }
+
+function load(ai, data) {
+  stop(); S.ai = ai; const A = ALGOS[ai];
+  S.data = data || A.presets[0]; S.frames = A.run(S.data); S.k = 0; S.asked = null; S.stats = null;
+  $('pick').value = String(ai);
+  $('stratline').textContent = `Strategy ${A.s}: ${STRATS[A.s - 1].name}`;
+  $('presets').innerHTML = A.presets.map((p, i) => `<button class="chip" type="button" data-p="${i}" aria-pressed="${p === S.data}" title="${esc(presetLabel(A, p))}">Example ${i + 1}</button>`).join('');
+  $('inArr').placeholder = A.in1; $('inT').placeholder = A.in2 || ''; $('inT').style.display = A.in2 ? '' : 'none';
+  $('code').innerHTML = A.code.map((ln, i) => `<div class="ln" data-l="${i + 1}"><i>${i + 1}</i><span>${highlight(ln)}</span></div>`).join('');
+  $('scrub').max = S.frames.length - 1;
+  const rows = S.frames[0].rows ? S.frames[0].rows.length : 1;
+  $('stageRows').innerHTML = Array.from({ length: rows }, (_, r) => `<div class="rowlab" data-rl="${r}"></div><div data-viz="${r}"></div><div class="idx" data-idx="${r}"></div><div class="ptrs" data-pl="${r}"></div>`).join('');
+  render();
+}
+
+function cellClasses(F, A, i) {
+  const c = ['cell'];
+  if (F.fade && (i < F.fade[0] || i > F.fade[1])) c.push('out');
+  const isP = F.ptrs.some(p => p.i === i && !p.gone && !(p.row > 0));
+  if (F.hit && F.hit.includes(i)) c.push('hit'); else if (isP && A.id !== 'dutch' && A.id !== 'palin' && A.id !== 'floyd') c.push('on');
+  if (F.prefix !== undefined && i < F.prefix) c.push('pre');
+  if (F.wrote === i) c.push('wrote');
+  if (F.sel && F.sel.includes(i)) c.push('sel');
+  if (F.best && F.best.includes(i)) c.push('best');
+  if (F.regions) { const [lo, mi, hi] = F.regions; if (i < lo) c.push('r0'); else if (i < mi) c.push('r1'); else if (i <= hi) c.push('unk'); else c.push('r2'); if (i === mi && mi <= hi) c.push('on'); }
+  if ((A.id === 'palin' || A.id === 'floyd') && isP && !(F.hit && F.hit.includes(i))) c.push('on');
+  return c.join(' ');
+}
+
+function render() {
+  const A = ALGOS[S.ai], F = S.frames[S.k];
+  const rows = F.rows || [{ name: null, arr: F.arr, cls: null }];
+  const n = Math.max(1, ...rows.map(r => r.arr.length));
+  const cw = n <= 8 ? 46 : n <= 10 ? 40 : n <= 12 ? 34 : 28, W = cw + 6;
+  $('watch').style.setProperty('--cw', cw + 'px');
+  $('cap').textContent = A.cap(S.data);
+  rows.forEach((row, r) => {
+    const lab = document.querySelector(`[data-rl="${r}"]`), viz = document.querySelector(`[data-viz="${r}"]`), idx = document.querySelector(`[data-idx="${r}"]`), pl = document.querySelector(`[data-pl="${r}"]`);
+    if (!viz) return;
+    lab.textContent = row.name ? `${row.name}` : ''; lab.style.display = row.name ? '' : 'none';
+    if (A.mode === 'bars') {
+      const mx = Math.max(1, ...F.arr), u = 140 / mx; viz.className = 'bars';
+      viz.innerHTML = F.arr.map((v, i) => {
+        const isP = F.ptrs.some(p => p.i === i), out = F.fade && (i < F.fade[0] || i > F.fade[1]);
+        let water = '';
+        if (A.id === 'container' && F.box && i >= F.box.lo && i <= F.box.hi) water = `<div class="wfill" style="height:${F.box.level * u}px"></div>`;
+        if (A.id === 'trap' && F.filled && F.filled[i] > 0) water = `<div class="wfill" style="bottom:${v * u}px;height:${F.filled[i] * u}px;opacity:.6"></div>`;
+        const top = A.id === 'trap' && F.filled ? (v + F.filled[i]) * u : v * u;
+        return `<div class="barcol">${water}<div class="bar${isP ? ' on' : ''}${out ? ' out' : ''}" style="height:${v * u}px"></div><div class="bval" style="bottom:${top + 2}px">${v}</div></div>`;
+      }).join('');
+    } else {
+      viz.className = 'cells';
+      viz.innerHTML = row.arr.map((v, i) => `<div class="${row.cls ? 'cell ' + (row.cls[i] || '') : cellClasses(F, A, i)}">${esc(v)}</div>`).join('');
+    }
+    idx.innerHTML = row.arr.map((_, i) => `<span>${i}</span>`).join('');
+    const ps = F.ptrs.filter(p => (p.row || 0) === r);
+    pl.style.height = (ps.length * 30) + 'px'; pl.style.width = (row.arr.length * W) + 'px';
+    if (pl.children.length !== ps.length) pl.innerHTML = ps.map(() => '<div class="ptr"></div>').join('');
+    [...pl.children].forEach((el, q) => { const p = ps[q]; el.textContent = p.n; el.className = `ptr ${p.c}${p.gone ? ' gone' : ''}`; el.style.left = (Math.min(p.i, row.arr.length) * W + (cw - 46) / 2) + 'px'; el.style.top = (q * 30) + 'px'; });
+  });
+  if (A.id === 'pair' && F.arr.length <= 10) {
+    const m = F.arr.length;
+    let h = `<div class="cap" style="margin-top:14px">Pair grid: each cell is a[i] + a[j]. Struck-out cells were ruled out without being checked.</div><div class="grid" style="grid-template-columns:repeat(${m + 1},30px)"><div class="gc hd"></div>`;
+    for (let j = 0; j < m; j++) h += `<div class="gc hd">${F.arr[j]}</div>`;
+    for (let i = 0; i < m; i++) {
+      h += `<div class="gc hd">${F.arr[i]}</div>`;
+      for (let j = 0; j < m; j++) {
+        if (j <= i) { h += '<div class="gc blank"></div>'; continue; }
+        const cls = F.hit && F.hit[0] === i && F.hit[1] === j ? 'hit' : F.dead && F.dead.has(i * m + j) ? 'dead' : F.cur && F.cur[0] === i && F.cur[1] === j ? 'cur' : '';
+        h += `<div class="gc ${cls}">${F.arr[i] + F.arr[j]}</div>`;
+      }
+    }
+    $('gridWrap').innerHTML = h + '</div>';
+  } else $('gridWrap').innerHTML = '';
+  $('code').querySelectorAll('.ln').forEach(el => el.classList.toggle('cur', Number(el.dataset.l) === F.line));
+  $('vars').innerHTML = F.vars.map(v => `<div class="var"><span>${esc(v[0])} = </span><b>${esc(v[1])}</b></div>`).join('');
+  $('note').textContent = F.note; $('note').classList.toggle('done', !!F.end);
+  $('scrub').value = S.k; $('count').textContent = `Step ${S.k + 1} of ${S.frames.length}`;
+  $('play').textContent = S.playing ? 'Pause' : (S.k >= S.frames.length - 1 ? 'Replay' : 'Play');
+  $('predict').setAttribute('aria-pressed', String(S.predict));
+  renderAsk();
+}
+function renderAsk() {
+  const box = $('askBox');
+  if (!S.asked) { box.innerHTML = ''; return; }
+  const q = S.asked.ask;
+  box.innerHTML = `<div class="ask"><p>Your call: ${esc(q.q)}</p><div class="row">${q.opts.map((o, i) => `<button class="chip" type="button" data-a="${i}">${esc(o)}</button>`).join('')}</div></div>`;
+  box.querySelector('button').focus({ preventScroll: true });
+}
+function answer(i) {
+  const q = S.asked.ask, ok = i === q.ans;
+  S.stats = S.stats || { right: 0, wrong: 0 }; ok ? S.stats.right++ : S.stats.wrong++;
+  S.k = S.asked.to; S.asked = null; render();
+  $('note').textContent = `${ok ? 'Correct.' : `Not quite. The right call: ${q.opts[q.ans]}.`} ${S.frames[S.k].note} (Predictions: ${S.stats.right} right, ${S.stats.wrong} wrong.)`;
+}
+function step(dir) {
+  if (S.asked) return;
+  const to = Math.max(0, Math.min(S.frames.length - 1, S.k + dir));
+  if (dir > 0 && S.predict && !S.playing && S.frames[to].ask && to !== S.k) { S.asked = { ask: S.frames[to].ask, to }; renderAsk(); return; }
+  S.k = to; render();
+}
+function stop() { S.playing = false; clearTimeout(S.timer); }
+function tick() { if (!S.playing) return; if (S.k >= S.frames.length - 1) { stop(); render(); return; } S.k++; render(); S.timer = setTimeout(tick, 1150 / S.speed); }
+function togglePlay() { if (S.asked) return; if (S.playing) { stop(); render(); return; } if (S.k >= S.frames.length - 1) S.k = 0; S.playing = true; render(); S.timer = setTimeout(tick, 600 / S.speed); }
+function openAlgo(ai) { $('err').textContent = ''; load(ai); $('watch').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+
+function initLab() {
+  const fams = [['Converging', [1, 2, 3, 4, 5, 6]], ['Same direction', [7, 8, 9, 13]], ['Two sequences and variants', [10, 11, 12]]];
+  $('pick').innerHTML = fams.map(([f, ss]) => `<optgroup label="${f}">${ALGOS.map((A, i) => ss.includes(A.s) ? `<option value="${i}">${A.s}. ${esc(STRATS[A.s - 1].name)}: ${esc(A.name)} (LC ${A.lc})</option>` : '').join('')}</optgroup>`).join('');
+  $('pick').addEventListener('change', e => { $('err').textContent = ''; load(Number(e.target.value)); });
+  $('presets').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { $('err').textContent = ''; load(S.ai, ALGOS[S.ai].presets[Number(b.dataset.p)]); } });
+  $('run').addEventListener('click', () => { const r = ALGOS[S.ai].parse($('inArr').value, $('inT').value); if (r.err) { $('err').textContent = r.err; return; } $('err').textContent = r.note || ''; load(S.ai, r.d); });
+  $('predict').addEventListener('click', () => { S.predict = !S.predict; store.set('tp.predict', S.predict); S.asked = null; render(); });
+  $('askBox').addEventListener('click', e => { const b = e.target.closest('button[data-a]'); if (b && S.asked) answer(Number(b.dataset.a)); });
+  $('restart').addEventListener('click', () => { stop(); S.asked = null; S.k = 0; S.stats = null; render(); });
+  $('back').addEventListener('click', () => { stop(); S.asked = null; step(-1); });
+  $('fwd').addEventListener('click', () => { stop(); step(1); });
+  $('play').addEventListener('click', togglePlay);
+  $('speeds').innerHTML = [0.5, 1, 2].map(s => `<button class="chip" type="button" data-s="${s}" aria-pressed="${s === 1}">${s}×</button>`).join('');
+  $('speeds').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.speed = Number(b.dataset.s); $('speeds').querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', String(x === b))); });
+  $('scrub').addEventListener('input', e => { stop(); S.asked = null; S.k = Number(e.target.value); render(); });
+  document.addEventListener('keydown', e => {
+    const tag = (e.target.tagName || '').toLowerCase(); if (tag === 'input' || tag === 'textarea' || tag === 'select') return;
+    const lab = $('watch').getBoundingClientRect(); if (lab.bottom < 0 || lab.top > innerHeight) return;
+    if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); stop(); step(1); }
+    else if (e.key === 'ArrowLeft') { e.preventDefault(); stop(); S.asked = null; step(-1); }
+    else if (e.key === 'p' || e.key === 'P') $('predict').click();
+  });
+  load(0);
+}
+
+/* ---------------- interview priority ---------------- */
+const LISTS = { B: 'Blind 75', N: 'NeetCode 150', T: 'Top Interview 150', L: 'LeetCode 75' };
+const SRC = { 125: 'BNT', 167: 'NT', 15: 'BNT', 11: 'BNTL', 42: 'NT', 5: 'BNT', 647: 'BN', 392: 'TL', 88: 'T', 26: 'T', 80: 'T', 27: 'T', 283: 'L', 1679: 'L', 287: 'N', 202: 'NT' };
+function tier(id) { const s = SRC[id] || ''; return s.length >= 3 ? 'top' : s.length === 2 ? 'must' : s.length === 1 ? 'common' : 'extra'; }
+const TIER_NAME = { top: 'Top priority', must: 'Must know', common: 'Common', extra: 'Pattern builder' };
+function badge(id) { return `<span class="badge ${tier(id)}">${TIER_NAME[tier(id)]}</span>`; }
+function srcText(id) { const s = SRC[id] || ''; return s ? s.split('').map(k => LISTS[k]).join(', ') : 'Not in the four lists; teaches the strategy'; }
+const WEIGHT = { 1: 'High', 2: 'High', 3: 'Medium', 4: 'High', 5: 'High', 6: 'Medium', 7: 'High', 8: 'Medium', 9: 'Low', 10: 'High', 11: 'High', 12: 'Medium', 13: 'Medium' };
+const LEGEND = `<span><span class="badge top">Top priority</span> in 3 or 4 lists</span><span><span class="badge must">Must know</span> in 2 lists</span><span><span class="badge common">Common</span> in 1 list</span><span><span class="badge extra">Pattern builder</span> in none, but trains the strategy</span><span class="srcs">Lists: Blind 75, NeetCode 150, LeetCode Top Interview 150, LeetCode 75. Company-specific frequency varies; check LeetCode's company tags for your target companies.</span>`;
+
+/* ---------------- strategy atlas ---------------- */
+const STRATS = [
+  { name: 'Converging elimination', fam: 'Converging', proof: 'Elimination',
+    sig: 'Sorted (or sortable) input, and you need a pair whose sum or difference meets a target.',
+    inv: 'If an answer exists, at least one answer lies inside [l, r].',
+    move: 'Sum too small: l++. Sum too big: r--. Equal: done.',
+    why: 'If a[l] + a[r] > target, then a[r] plus every remaining partner is at least a[l] + a[r], so no pair using r can work. The other case is symmetric.',
+    loop: 'while (l < r): the answer needs two different indices.',
+    cx: 'O(n) time, O(1) space. r − l drops by 1 per step, so at most n − 1 steps.',
+    tpl: 'let l = 0, r = a.length - 1;\nwhile (l < r) {\n  const s = a[l] + a[r];\n  if (s === target) return [l, r];\n  if (s < target) l++; else r--;\n}\nreturn null;',
+    traps: 'Unsorted input when indices must be returned: sorting destroys them, so use a hash map. The default sort compares strings: always pass (x, y) => x − y.',
+    probs: [lc(167, 'two-sum-ii-input-array-is-sorted', 'Two Sum II'), lc(125, 'valid-palindrome', 'Valid Palindrome'), lc(680, 'valid-palindrome-ii', 'Valid Palindrome II'), lc(977, 'squares-of-a-sorted-array', 'Squares of a Sorted Array'), lc(653, 'two-sum-iv-input-is-a-bst', 'Two Sum IV (BST)')] },
+  { name: 'Anchor plus converging (k-Sum)', fam: 'Converging', proof: 'Elimination',
+    sig: 'Triplets or quadruplets with a sum condition, often “return all unique triplets”.',
+    inv: 'For a fixed anchor i, the inner loop finds every pair in (i, n) with the needed sum.',
+    move: 'Fix a[i], then run strategy 1 on the rest for −a[i]. Skip equal anchors. After a hit, skip copies on both sides, then move both pointers.',
+    why: 'A repeated anchor value can only find pairs the first copy already found, because its search range is a subset. After a hit with a[l] fixed, only a different a[r] can reach the same sum, so both must move.',
+    loop: 'for (i < n − 2), and inside it while (l < r).',
+    cx: 'O(n²) for 3Sum after an O(n log n) sort; k-Sum is O(n^(k−1)). Duplicate skipping is paid for by the same r − l budget.',
+    tpl: 'a.sort((x, y) => x - y);\nfor (let i = 0; i < n - 2; i++) {\n  if (i > 0 && a[i] === a[i - 1]) continue;\n  let l = i + 1, r = n - 1;\n  while (l < r) { /* strategy 1 for -a[i], skip dups after a hit */ }\n}',
+    traps: 'Skipping duplicates before recording a hit jumps over the first valid triplet. A Set of stringified triplets works but hides the reasoning interviewers look for. 4Sum sums can exceed 2^53 in some languages; in JavaScript, check the constraints.',
+    probs: [lc(15, '3sum', '3Sum'), lc(16, '3sum-closest', '3Sum Closest'), lc(18, '4sum', '4Sum'), lc(923, '3sum-with-multiplicity', '3Sum With Multiplicity')] },
+  { name: 'Counting with r − l', fam: 'Converging', proof: 'Elimination',
+    sig: '“Count the pairs (or triplets) such that the sum is below, at most, or above a target.” A count, not a list.',
+    inv: 'Every pair whose left index is below l, or whose right index is above r, is already counted or rejected.',
+    move: 'If a[l] + a[r] < target: count += r − l, then l++. Otherwise r--.',
+    why: 'When a[l] + a[r] < target, every r′ in (l, r] has a[r′] ≤ a[r], so a[l] pairs with all r − l of them. Counting them one by one would be O(n²).',
+    loop: 'while (l < r).',
+    cx: 'O(n) after sorting. Valid Triangle Number adds an anchor loop: O(n²) instead of O(n² log n) with binary search, or O(n³) by brute force.',
+    tpl: 'let l = 0, r = n - 1, count = 0;\nwhile (l < r) {\n  if (a[l] + a[r] < target) { count += r - l; l++; }\n  else r--;\n}',
+    traps: 'Off by one: r − l, not r − l + 1. Make sure the problem counts index pairs rather than value pairs: duplicates are counted, not skipped.',
+    probs: [lc(2824, 'count-pairs-whose-sum-is-less-than-target', 'Count Pairs Whose Sum is Less than Target'), lc(611, 'valid-triangle-number', 'Valid Triangle Number'), lc(259, '3sum-smaller', '3Sum Smaller (premium)')] },
+  { name: 'Converging on an objective', fam: 'Converging', proof: 'Dominance',
+    sig: 'Maximise or minimise a score of two positions, such as width × min(height). The input is usually not sorted.',
+    inv: 'The best pair is either already recorded in best, or lies inside [l, r].',
+    move: 'Record the score, then move the side that caps it: the shorter line.',
+    why: 'Every pair that keeps the shorter line is narrower and no taller than the current one, so it is dominated: it can never beat a score you have already recorded. On a tie, both sides are dominated, so moving either is safe.',
+    loop: 'while (l < r).',
+    cx: 'O(n) time, O(1) space.',
+    tpl: 'let l = 0, r = n - 1, best = 0;\nwhile (l < r) {\n  best = Math.max(best, (r - l) * Math.min(h[l], h[r]));\n  if (h[l] < h[r]) l++; else r--;\n}',
+    traps: 'Moving the taller side looks reasonable and is wrong: the shorter side stays as the cap while the width shrinks. This problem proves that sortedness is not the precondition; a dominance argument is.',
+    probs: [lc(11, 'container-with-most-water', 'Container With Most Water')] },
+  { name: 'Converging with carried state', fam: 'Converging', proof: 'Settled state',
+    sig: 'The answer at each index depends on the maximum or minimum on both sides of it.',
+    inv: 'leftMax is max(h[0..l]) and rightMax is max(h[r..]); the side with the smaller current bar has a final answer.',
+    move: 'Process the side whose bar is smaller, updating its running maximum, then move it inward.',
+    why: 'If h[l] < h[r], the true maximum to the right of l is at least h[r], which is at least leftMax. So min(leftMax, maxRight) is leftMax, which is already known. The left side is settled without looking at the middle.',
+    loop: 'while (l < r).',
+    cx: 'O(n) time, O(1) space, against O(n) space for prefix and suffix maximum arrays.',
+    tpl: 'let l = 0, r = n - 1, lm = 0, rm = 0, water = 0;\nwhile (l < r) {\n  if (h[l] < h[r]) { lm = Math.max(lm, h[l]); water += lm - h[l]; l++; }\n  else { rm = Math.max(rm, h[r]); water += rm - h[r]; r--; }\n}',
+    traps: 'Pouring before updating the maximum gives negative water. If the two-pointer proof is hard to give under pressure, the prefix-array version is a correct fallback.',
+    probs: [lc(42, 'trapping-rain-water', 'Trapping Rain Water'), lc(581, 'shortest-unsorted-continuous-subarray', 'Shortest Unsorted Continuous Subarray')] },
+  { name: 'Greedy pairing', fam: 'Converging', proof: 'Exchange',
+    sig: 'Pair items into groups of at most two under a capacity, using as few groups as possible. Smallest is matched against largest.',
+    inv: 'Everyone outside [l, r] is in a boat, using the fewest boats possible for them.',
+    move: 'The heaviest always takes a boat. If the lightest fits too, both board.',
+    why: 'Exchange argument: take any optimal plan. If the heaviest shares with someone, swapping that partner for the lightest keeps both boats within the limit. So pairing heaviest with lightest is never worse.',
+    loop: 'while (l <= r): a single person left in the middle still needs a boat.',
+    cx: 'O(n log n) for the sort, then O(n).',
+    tpl: 'w.sort((x, y) => x - y);\nlet l = 0, r = n - 1, boats = 0;\nwhile (l <= r) {\n  if (w[l] + w[r] <= limit) l++;\n  r--; boats++;\n}',
+    traps: 'Writing l < r loses the last person. Pairing the two heaviest that fit feels clever and is not optimal; if you cannot write the exchange argument, do not trust the greedy choice.',
+    probs: [lc(881, 'boats-to-save-people', 'Boats to Save People'), lc(1679, 'max-number-of-k-sum-pairs', 'Max Number of K-Sum Pairs'), lc(948, 'bag-of-tokens', 'Bag of Tokens')] },
+  { name: 'Read and write compaction', fam: 'Same direction', proof: 'Invariant',
+    sig: 'Modify the array in place: remove, deduplicate, filter or move elements, return the new length, O(1) extra space.',
+    inv: 'a[0..w) is exactly the correct output for a[0..r).',
+    move: 'r reads every element. When a[r] belongs in the output, write it at w and advance w.',
+    why: 'w never passes r, so a write only overwrites a value that has already been read. The prefix grows correctly one element at a time.',
+    loop: 'for (r < n).',
+    cx: 'O(n) time, O(1) space.',
+    tpl: 'let w = 0;\nfor (let r = 0; r < n; r++) {\n  if (keep(a[r])) a[w++] = a[r];\n}\nreturn w;',
+    traps: 'splice in a loop is O(n) per call, so O(n²) in total. Return w, not the array. Overwriting keeps relative order; swapping (as in Move Zeroes) keeps it too, but explain why.',
+    probs: [lc(26, 'remove-duplicates-from-sorted-array', 'Remove Duplicates'), lc(80, 'remove-duplicates-from-sorted-array-ii', 'Remove Duplicates II'), lc(27, 'remove-element', 'Remove Element'), lc(283, 'move-zeroes', 'Move Zeroes')] },
+  { name: 'Multi-pointer partition', fam: 'Same direction', proof: 'Invariant',
+    sig: 'Group values into two or three categories in one pass, in place.',
+    inv: 'Four regions: [0, low) is 0s, [low, mid) is 1s, [mid, high] is unknown, (high, n) is 2s.',
+    move: 'Classify a[mid]: a 0 swaps to low (low++, mid++); a 1 just mid++; a 2 swaps to high (high--, mid stays).',
+    why: 'Each step shrinks the unknown region by exactly one. A value swapped in from high comes from the unknown region and has not been examined, so mid must not pass it.',
+    loop: 'while (mid <= high): the last unknown element must be classified too.',
+    cx: 'O(n) time in one pass, O(1) space. Not stable: equal values can change relative order.',
+    tpl: 'let low = 0, mid = 0, high = n - 1;\nwhile (mid <= high) {\n  if (a[mid] === 0) swap(low++, mid++);\n  else if (a[mid] === 1) mid++;\n  else swap(mid, high--);\n}',
+    traps: 'Advancing mid after the swap with high. Using this when the problem needs a stable partition: then use read/write passes or an extra array.',
+    probs: [lc(75, 'sort-colors', 'Sort Colors'), lc(905, 'sort-array-by-parity', 'Sort Array By Parity'), lc(2161, 'partition-array-according-to-given-pivot', 'Partition Array According to Given Pivot (stable)')] },
+  { name: 'Same direction with a gap', fam: 'Same direction', proof: 'Elimination',
+    sig: 'Pairs with a target difference, or the smallest difference within a group. Both indices only ever move forward.',
+    inv: 'For the current i, every j′ < j has a[j′] − a[i] < k.',
+    move: 'Gap too small (or i = j): j++. Gap too big: i++. Equal: count it, then move i past its copies.',
+    why: 'In sorted order, increasing j only widens the gap and increasing i only narrows it. So when the gap is too big, no later j helps the current i, and i is finished.',
+    loop: 'while (i < n && j < n), keeping i < j.',
+    cx: 'O(n) after sorting: each pointer moves forward at most n times, 2n moves in total.',
+    tpl: 'let i = 0, j = 1;\nwhile (i < n && j < n) {\n  if (i === j || a[j] - a[i] < k) j++;\n  else if (a[j] - a[i] > k) i++;\n  else { /* found */ i++; while (i < n && a[i] === a[i - 1]) i++; }\n}',
+    traps: 'k = 0 needs two different indices with the same value: the i === j check handles it. Counting the same value pair twice: skip copies after a hit.',
+    probs: [lc(532, 'k-diff-pairs-in-an-array', 'K-diff Pairs'), lc(1984, 'minimum-difference-between-highest-and-lowest-of-k-scores', 'Minimum Difference of K Scores')] },
+  { name: 'One pointer per sequence', fam: 'Two sequences and variants', proof: 'Elimination',
+    sig: 'Two sorted arrays or two strings: merge, intersect, compare, or check a subsequence.',
+    inv: 'Everything before i in the first input and before j in the second is resolved.',
+    move: 'Advance the side that cannot match anything later: the smaller value, or the character that does not match.',
+    why: 'In sorted inputs, the smaller current value is smaller than everything left in the other input, so it can never match. For subsequences, taking the earliest match in t never hurts, because it leaves the most of t for the rest of s.',
+    loop: 'while (i < m && j < n), then handle what is left of either input.',
+    cx: 'O(m + n) time. Merging in place from the back needs no extra array.',
+    tpl: 'let i = 0, j = 0;\nwhile (i < m && j < n) {\n  if (A[i] === B[j]) { /* match */ i++; j++; }\n  else if (A[i] < B[j]) i++;\n  else j++;\n}',
+    traps: 'Forgetting to drain the leftover input. Merging in place from the front overwrites values you still need: go from the back.',
+    probs: [lc(392, 'is-subsequence', 'Is Subsequence'), lc(88, 'merge-sorted-array', 'Merge Sorted Array'), lc(350, 'intersection-of-two-arrays-ii', 'Intersection of Two Arrays II'), lc(844, 'backspace-string-compare', 'Backspace String Compare'), lc(925, 'long-pressed-name', 'Long Pressed Name')] },
+  { name: 'Expand from the center', fam: 'Two sequences and variants', proof: 'Invariant',
+    sig: 'Palindromic substrings, or any structure that is symmetric around a center.',
+    inv: 's[l + 1..r − 1] is a palindrome.',
+    move: 'From each of the 2n − 1 centers, move l left and r right while s[l] === s[r].',
+    why: 'Every palindrome has exactly one center, and a longer palindrome with the same center contains the shorter one. So expanding each center once finds every palindrome.',
+    loop: 'while (l >= 0 && r < n && s[l] === s[r]).',
+    cx: 'O(n²) time, O(1) space. Manacher’s algorithm is O(n) but rarely expected.',
+    tpl: 'for (let c = 0; c < 2 * n - 1; c++) {\n  let l = Math.floor(c / 2), r = l + (c % 2);\n  while (l >= 0 && r < n && s[l] === s[r]) { l--; r++; }\n  // palindrome is s.slice(l + 1, r)\n}',
+    traps: 'Forgetting even-length centers, the gaps between characters. Calling slice inside the loop adds an O(n) factor: record indices and slice once.',
+    probs: [lc(5, 'longest-palindromic-substring', 'Longest Palindromic Substring'), lc(647, 'palindromic-substrings', 'Palindromic Substrings')] },
+  { name: 'Scan from the right', fam: 'Two sequences and variants', proof: 'Invariant',
+    sig: 'The next or previous arrangement in order, the next greater number with the same digits, or anything decided by a suffix.',
+    inv: 'While scanning left, a[i + 1..] is non-increasing: already the largest arrangement of its values.',
+    move: 'Find the pivot i (first a[i] < a[i + 1] from the right). Swap it with the rightmost value larger than it. Reverse the suffix.',
+    why: 'A descending suffix cannot be made any larger, so the pivot is the rightmost position that must change. Raising it by the smallest possible amount, then making the suffix as small as possible (ascending), gives exactly the next arrangement.',
+    loop: 'Two scans from the right, then a converging reversal with l < r.',
+    cx: 'O(n) time, O(1) space.',
+    tpl: 'let i = n - 2;\nwhile (i >= 0 && a[i] >= a[i + 1]) i--;\nif (i >= 0) {\n  let j = n - 1;\n  while (a[j] <= a[i]) j--;\n  swap(i, j);\n}\nreverse(i + 1, n - 1);',
+    traps: 'Using > instead of >= breaks inputs with duplicates. When there is no pivot, the array is the last permutation, and reversing everything gives the first.',
+    probs: [lc(31, 'next-permutation', 'Next Permutation'), lc(556, 'next-greater-element-iii', 'Next Greater Element III')] },
+  { name: 'Fast and slow on an index graph', fam: 'Same direction', proof: 'Invariant',
+    sig: 'Values that act as pointers (n + 1 values in 1..n), a sequence that must repeat, or a linked list: find a cycle or its start, without extra space.',
+    inv: 'Phase 1: fast has taken twice as many steps as slow. Phase 2: both are the same distance from the cycle entry.',
+    move: 'slow = a[slow], fast = a[a[fast]] until they meet. Then restart slow and move both one step at a time.',
+    why: 'Pigeonhole: two indices hold the same value, so the walk must enter a cycle, and the duplicate is its entry. If the entry is μ steps from the start, the meeting point is μ steps before the entry going around the cycle, so the two pointers meet exactly at the entry.',
+    loop: 'do { … } while (slow !== fast), then while (slow !== fast).',
+    cx: 'O(n) time, O(1) space, and the array is not modified.',
+    tpl: 'let slow = a[0], fast = a[0];\ndo { slow = a[slow]; fast = a[a[fast]]; } while (slow !== fast);\nslow = a[0];\nwhile (slow !== fast) { slow = a[slow]; fast = a[fast]; }\nreturn slow;',
+    traps: 'Sorting or negating values breaks the “do not modify the array” constraint. A hash set solves it in O(n) space; say that first, then improve.',
+    probs: [lc(287, 'find-the-duplicate-number', 'Find the Duplicate Number'), lc(202, 'happy-number', 'Happy Number'), lc(457, 'circular-array-loop', 'Circular Array Loop')] }
+];
+function renderAtlas() {
+  $('legendA').innerHTML = LEGEND;
+  const fams = [['Converging: start at both ends', [1, 2, 3, 4, 5, 6]], ['Same direction: both move forward', [7, 8, 9, 13]], ['Two sequences and variants', [10, 11, 12]]];
+  $('atlasBox').innerHTML = fams.map(([f, ss]) => `<div class="fam"><h3>${f}</h3>${ss.map(sn => {
+    const st = STRATS[sn - 1], algos = ALGOS.map((A, i) => [A, i]).filter(([A]) => A.s === sn);
+    return `<details class="st" id="st${sn}"><summary><span class="n">${sn}</span><b>${esc(st.name)}</b><span class="count">${esc(st.proof)} proof · interview weight <span class="weight ${WEIGHT[sn]}">${WEIGHT[sn]}</span></span><span class="sig">${esc(st.sig)}</span></summary>
+      <div class="stbody"><dl class="kv">
+        <dt>Interview weight</dt><dd><span class="weight ${WEIGHT[sn]}">${WEIGHT[sn]}</span></dd>
+        <dt>Invariant</dt><dd>${esc(st.inv)}</dd>
+        <dt>Move rule</dt><dd>${esc(st.move)}</dd>
+        <dt>Why it is safe</dt><dd>${esc(st.why)}</dd>
+        <dt>Loop condition</dt><dd>${esc(st.loop)}</dd>
+        <dt>Complexity</dt><dd>${esc(st.cx)}</dd>
+        <dt>Traps</dt><dd>${esc(st.traps)}</dd>
+      </dl>
+      <pre class="tpl">${st.tpl.split('\n').map(highlight).join('\n')}</pre>
+      <div class="row" style="margin-top:6px">${algos.map(([A, i]) => `<button class="chip primary" type="button" data-run="${i}">Run it: ${esc(A.name)}</button>`).join('')}</div>
+      <div class="tag do">Practise</div><div class="probs">${st.probs.slice().sort((x, y) => ['top', 'must', 'common', 'extra'].indexOf(tier(x.n)) - ['top', 'must', 'common', 'extra'].indexOf(tier(y.n))).map(p => `<a href="https://leetcode.com/problems/${p.slug}/" target="_blank" rel="noopener" title="${esc(srcText(p.n))}">${p.n} ${esc(p.name)} ${badge(p.n)}</a>`).join('')}</div></div></details>`;
+  }).join('')}</div>`).join('');
+  $('atlasBox').addEventListener('click', e => { const b = e.target.closest('button[data-run]'); if (b) openAlgo(Number(b.dataset.run)); });
+}
+
+/* ---------------- chooser ---------------- */
+const TREE = {
+  start: { q: 'What does the problem ask for?', o: [
+    ['A pair, triplet or count of pairs from one array', 'pairs'],
+    ['The best pair of positions by a score such as an area', { s: 4 }],
+    ['A value at each index that depends on both sides', { s: 5 }],
+    ['Rewrite an array in place', 'inplace'],
+    ['Compare, merge or match two sequences', { s: 10 }],
+    ['Something about palindromes inside a string', { s: 11 }],
+    ['The next or previous arrangement of values', { s: 12 }],
+    ['A repeated value or a cycle, without extra space', { s: 13 }],
+    ['The longest or shortest subarray meeting a condition', { alt: 'Sliding window (module M4)', why: 'When correctness depends on everything between the pointers, such as a sum or character counts, the region carries an aggregate. That is a sliding window, not plain two pointers.' }]] },
+  pairs: { q: 'Is the input sorted, or can you sort it without losing what you must return?', o: [
+    ['Yes, or the output is values or a count', 'pairkind'],
+    ['No: I must return the original indices', { alt: 'Hash map (module M2)', why: 'Sorting costs O(n log n) and destroys the indices. A one-pass map from value to index solves it in O(n).' }]] },
+  pairkind: { q: 'What exactly is asked about the pairs?', o: [
+    ['Find one pair with a target sum', { s: 1 }],
+    ['Find triplets or quadruplets with a target sum', { s: 2 }],
+    ['Count pairs or triplets above or below a target', { s: 3 }],
+    ['Find pairs with a target difference', { s: 9 }],
+    ['Group items into pairs under a capacity', { s: 6 }]] },
+  inplace: { q: 'What kind of rewrite?', o: [
+    ['Keep a filtered or deduplicated sequence in order', { s: 7 }],
+    ['Group values into two or three categories', { s: 8 }]] }
+};
+const C = { path: ['start'], picks: [] };
+function renderChooser() {
+  const box = $('chooseBox'), cur = C.path[C.path.length - 1];
+  const crumbs = C.picks.length ? `<div class="crumbs">${C.picks.map(esc).join('  ›  ')}</div>` : '';
+  if (typeof cur === 'object') {
+    let body;
+    if (cur.s) { const st = STRATS[cur.s - 1], ai = ALGOS.findIndex(A => A.s === cur.s);
+      body = `<div class="result"><h3><span class="n">${cur.s}</span>${esc(st.name)}</h3><p style="margin:4px 0 0">${esc(st.why)}</p><p style="margin:8px 0 0"><b>Invariant:</b> ${esc(st.inv)}</p><div class="row" style="margin-top:12px"><button class="chip primary" type="button" id="cRun">Run it in the player</button><button class="chip" type="button" id="cCard">Open the full strategy card</button></div></div>`;
+      box.innerHTML = crumbs + body + '<div class="row" style="margin-top:12px"><button class="chip" type="button" id="cBack">Back</button><button class="chip" type="button" id="cAgain">Start over</button></div>';
+      $('cRun').addEventListener('click', () => openAlgo(ai));
+      $('cCard').addEventListener('click', () => { const d = $('st' + cur.s); d.open = true; d.scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    } else {
+      box.innerHTML = crumbs + `<div class="result" style="border-color:var(--p2)"><h3>Not two pointers: ${esc(cur.alt)}</h3><p style="margin:4px 0 0">${esc(cur.why)}</p></div><div class="row" style="margin-top:12px"><button class="chip" type="button" id="cBack">Back</button><button class="chip" type="button" id="cAgain">Start over</button></div>`;
+    }
+  } else {
+    const node = TREE[cur];
+    box.innerHTML = crumbs + `<h3>${esc(node.q)}</h3>${node.o.map((o, i) => `<button class="chip opt" type="button" data-o="${i}">${esc(o[0])}</button>`).join('')}${C.picks.length ? '<div class="row" style="margin-top:12px"><button class="chip" type="button" id="cBack">Back</button></div>' : ''}`;
+    box.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => { const o = node.o[Number(b.dataset.o)]; C.picks.push(o[0]); C.path.push(o[1]); renderChooser(); }));
+  }
+  const back = $('cBack'); if (back) back.addEventListener('click', () => { C.path.pop(); C.picks.pop(); renderChooser(); });
+  const again = $('cAgain'); if (again) again.addEventListener('click', () => { C.path = ['start']; C.picks = []; renderChooser(); });
+}
+
+/* ---------------- quiz ---------------- */
+const QUIZ = [
+  { q: 'In pair sum on a sorted array, a[l] + a[r] > target. Why is r-- safe?', o: ['Because smaller values are on the left', 'Every pair using r has a partner of at least a[l], so its sum is at least a[l] + a[r] > target', 'Because r has already been compared once', 'Because moving r is cheaper than moving l'], a: 1, e: 'Sorted order is the precondition, but the reason is elimination: the smallest partner left for r is a[l], and even that pair is too big.' },
+  { q: 'Container with most water: h[l] = 3, h[r] = 8. Which pointer moves?', o: ['r, because taller lines are less useful', 'l, because every container that keeps l is narrower and capped at height 3', 'Either, the result is the same', 'Both'], a: 1, e: 'Dominance: any container keeping l is narrower and no taller than 3, so it cannot beat the current one.' },
+  { q: 'Dutch flag: a[mid] is 2 and you swap it with a[high]. Why does mid not advance?', o: ['Because high moved instead', 'The value swapped in from high has not been examined yet', 'Because 2s must stay at mid', 'It should advance'], a: 1, e: 'The value arriving from high comes from the unknown region and must be classified before mid passes it.' },
+  { q: 'Counting pairs below a target: at (l, r) the sum is below target. What do you add?', o: ['1', 'r − l', 'r − l + 1', 'n − r'], a: 1, e: 'Every index in (l, r] pairs with l, because those values are at most a[r]: r − l pairs at once.' },
+  { q: 'Subarray sum equals k, and the array has negative numbers. Which technique?', o: ['Converging two pointers', 'Sliding window', 'Prefix sums plus a hash map', 'Binary search'], a: 2, e: 'With negatives, shrinking a window does not reliably reduce the sum, so no move is provably safe. Prefix sums turn it into a lookup.' },
+  { q: 'Unsorted array, return the original indices of two numbers that sum to target. Best approach?', o: ['Sort, then two pointers', 'A hash map of value to index, in one pass', 'Brute force only', 'Sliding window'], a: 1, e: 'Sorting destroys the indices you must return. A one-pass hash map is O(n).' },
+  { q: 'In 3Sum, when do you skip duplicate values of a[l]?', o: ['Before checking the sum, at every step', 'Only after recording a valid triplet', 'Never; dedupe with a Set at the end', 'Only for the anchor'], a: 1, e: 'Skipping before a hit can jump over the first valid pair.' },
+  { q: 'Boats to Save People uses while (l <= r). What breaks with l < r?', o: ['Nothing', 'A lone person left in the middle never gets a boat', 'It counts one boat too many', 'It loops forever'], a: 1, e: 'When l === r, one person is left and still needs a boat. l < r skips them and undercounts by one.' },
+  { q: 'K-diff pairs with k = 0. What stops a single element from pairing with itself?', o: ['Sorting', 'The i === j check, which moves j forward', 'Skipping duplicates', 'Nothing; it is a bug'], a: 1, e: 'With k = 0, a[j] − a[i] = 0 when i === j. The explicit check makes j move ahead, so a pair needs two different indices.' },
+  { q: 'Why does Merge Sorted Array fill A from the back?', o: ['It is faster', 'Writing at the front would overwrite A values not yet read', 'Because B is shorter', 'It does not matter'], a: 1, e: 'The empty slots are at the end of A. Writing the largest values there first means every write lands on an empty slot or an already-copied value.' },
+  { q: 'Longest palindromic substring by expanding centers: how many centers are there for a string of length n?', o: ['n', 'n − 1', '2n − 1', 'n²'], a: 2, e: 'n odd centers (each character) plus n − 1 even centers (each gap). Forgetting the gaps misses every even-length palindrome.' },
+  { q: 'Find the Duplicate Number: why does restarting slow at the beginning find the duplicate?', o: ['By luck on small inputs', 'The distance from the start to the cycle entry equals the distance from the meeting point to the entry', 'Because fast is twice as fast', 'Because the array is sorted'], a: 1, e: 'That equal-distance property means both pointers, moving one step at a time, arrive at the entry together. The entry is the value two indices point to: the duplicate.' }
+];
+const Q = { i: 0, picked: -1, score: 0 };
+function renderQuiz() {
+  const box = $('quizBox');
+  if (Q.i >= QUIZ.length) {
+    const best = Math.max(store.get('tp.quizBest2', 0), Q.score); store.set('tp.quizBest2', best);
+    box.innerHTML = `<h3>You scored ${Q.score} of ${QUIZ.length}</h3><p>${Q.score === QUIZ.length ? 'All correct. Move on to the practice list.' : Q.score >= 9 ? 'Solid. Open the strategy cards behind the questions you missed, then practise.' : 'Replay the strategies you missed in predict mode, then try again tomorrow.'} Best so far: ${best} of ${QUIZ.length}.</p><button class="chip" type="button" id="qAgain">Start again</button>`;
+    $('qAgain').addEventListener('click', () => { Q.i = 0; Q.picked = -1; Q.score = 0; renderQuiz(); });
+    return;
+  }
+  const c = QUIZ[Q.i];
+  box.innerHTML = `<div class="count">Question ${Q.i + 1} of ${QUIZ.length} · score ${Q.score}</div><h3 style="margin-top:6px">${esc(c.q)}</h3>${c.o.map((o, k) => {
+    let cls = 'chip opt'; if (Q.picked >= 0) { if (k === c.a) cls += ' right'; else if (k === Q.picked) cls += ' wrong'; }
+    return `<button class="${cls}" type="button" data-k="${k}" ${Q.picked >= 0 ? 'disabled' : ''}>${esc(o)}</button>`; }).join('')}
+    ${Q.picked >= 0 ? `<p class="said" style="margin-top:12px"><b>${Q.picked === c.a ? 'Correct.' : 'Not quite.'}</b> ${esc(c.e)}</p><button class="chip primary" type="button" id="qNext">${Q.i + 1 === QUIZ.length ? 'See your score' : 'Next question'}</button>` : ''}`;
+  box.querySelectorAll('.opt').forEach(b => b.addEventListener('click', () => { Q.picked = Number(b.dataset.k); if (Q.picked === c.a) Q.score++; renderQuiz(); }));
+  const nx = $('qNext'); if (nx) nx.addEventListener('click', () => { Q.i++; Q.picked = -1; renderQuiz(); });
+}
+
+/* ---------------- practice ---------------- */
+const PRACTICE = [
+  { id: 125, slug: 'valid-palindrome', name: 'Valid Palindrome', lvl: 'Warm-up', s: 1, h: ['Converging pointers on the original string, skipping anything that is not a letter or digit.', 'Compare lowercased characters; skip inside the loop with while (l < r && !isAlnum(s[l])) l++.', 'Do not build a cleaned copy: the O(1)-space version is what the interviewer wants.'] },
+  { id: 167, slug: 'two-sum-ii-input-array-is-sorted', name: 'Two Sum II', lvl: 'Medium', s: 1, h: ['Start with the smallest and largest values.', 'Sum too small: l++. Sum too big: r--.', 'Indices are 1-based in this problem: return [l + 1, r + 1].'] },
+  { id: 283, slug: 'move-zeroes', name: 'Move Zeroes', lvl: 'Warm-up', s: 7, h: ['w marks the end of the non-zero prefix.', 'Swap a[w] and a[r] whenever a[r] is non-zero.', 'Say why the swap keeps the order of the non-zeros.'] },
+  { id: 977, slug: 'squares-of-a-sorted-array', name: 'Squares of a Sorted Array', lvl: 'Easy', s: 1, h: ['The largest square is at one of the two ends.', 'Converge and write the larger square into the output from the back.', 'This loop needs l <= r.'] },
+  { id: 392, slug: 'is-subsequence', name: 'Is Subsequence', lvl: 'Easy', s: 10, h: ['One pointer in each string.', 'j always moves; i moves only on a match.', 'Follow-up: many s strings against one t. Precompute, for each character, the sorted list of its positions in t, and binary search.'] },
+  { id: 88, slug: 'merge-sorted-array', name: 'Merge Sorted Array', lvl: 'Easy', s: 10, h: ['The free space is at the end of A.', 'Fill from the back with the larger of A[i] and B[j].', 'Loop while j >= 0: leftover A values are already in place.'] },
+  { id: 15, slug: '3sum', name: '3Sum', lvl: 'Medium', s: 2, h: ['Sort, fix an anchor, converge on the rest.', 'Skip equal anchors; after a hit, skip copies of a[l] and a[r].', 'Break early when a[i] > 0: three positives cannot sum to zero.'] },
+  { id: 16, slug: '3sum-closest', name: '3Sum Closest', lvl: 'Medium', s: 2, h: ['Same structure as 3Sum, tracking the best |sum − target|.', 'If the sum is below the target, only l++ can bring it closer.', 'Return immediately on an exact match.'] },
+  { id: 2824, slug: 'count-pairs-whose-sum-is-less-than-target', name: 'Count Pairs Below Target', lvl: 'Easy', s: 3, h: ['Sort first; counting pairs does not depend on order.', 'When a[l] + a[r] < target, add r − l.', 'Then try Valid Triangle Number with the same move.'] },
+  { id: 611, slug: 'valid-triangle-number', name: 'Valid Triangle Number', lvl: 'Medium', s: 3, h: ['Sort, and fix the largest side k from the right.', 'If a[l] + a[r] > a[k], add r − l and move r down.', 'O(n²), against O(n² log n) with binary search.'] },
+  { id: 11, slug: 'container-with-most-water', name: 'Container With Most Water', lvl: 'Medium', s: 4, h: ['Start with the widest container.', 'Move the shorter side.', 'Be ready to prove why moving the taller side cannot help.'] },
+  { id: 42, slug: 'trapping-rain-water', name: 'Trapping Rain Water', lvl: 'Hard', s: 5, h: ['Water at i = min(maxLeft, maxRight) − h[i].', 'Write the prefix-array version first: O(n) space.', 'Then keep only leftMax and rightMax, and process the smaller side.'] },
+  { id: 881, slug: 'boats-to-save-people', name: 'Boats to Save People', lvl: 'Medium', s: 6, h: ['Sort, and pair the heaviest with the lightest.', 'The heaviest always takes the current boat.', 'Write the exchange argument before you trust the greedy choice.'] },
+  { id: 80, slug: 'remove-duplicates-from-sorted-array-ii', name: 'Remove Duplicates II', lvl: 'Medium', s: 7, h: ['Read/write with w as the output length.', 'Compare a[r] with a[w − 2], not a[w − 1].', 'Generalise: at most k copies compares with a[w − k].'] },
+  { id: 75, slug: 'sort-colors', name: 'Sort Colors', lvl: 'Medium', s: 8, h: ['Three pointers: low, mid, high.', 'Write down the four regions before coding.', 'mid does not move after a swap with high.'] },
+  { id: 532, slug: 'k-diff-pairs-in-an-array', name: 'K-diff Pairs', lvl: 'Medium', s: 9, h: ['Sort; both pointers only move forward.', 'Gap too small: j++. Gap too big: i++.', 'k = 0 needs i ≠ j; skip copies after each hit.'] },
+  { id: 844, slug: 'backspace-string-compare', name: 'Backspace String Compare', lvl: 'Medium in O(1) space', s: 10, h: ['Walk both strings from the end.', 'Keep a skip counter per string.', 'Equal only if both run out together.'] },
+  { id: 5, slug: 'longest-palindromic-substring', name: 'Longest Palindromic Substring', lvl: 'Medium', s: 11, h: ['Every palindrome has a center: a character or a gap.', 'Expand each of the 2n − 1 centers while the ends match.', 'Record indices, and slice once at the end.'] },
+  { id: 647, slug: 'palindromic-substrings', name: 'Palindromic Substrings', lvl: 'Medium', s: 11, h: ['Same 2n − 1 centers as Longest Palindromic Substring.', 'Every successful expansion step is one more palindrome: count it.', 'O(n²) time and O(1) space; a DP table works too but costs O(n²) space.'] },
+  { id: 31, slug: 'next-permutation', name: 'Next Permutation', lvl: 'Medium', s: 12, h: ['From the right, find the first a[i] < a[i + 1].', 'Swap a[i] with the rightmost larger value, then reverse the suffix.', 'No pivot means reverse the whole array.'] },
+  { id: 287, slug: 'find-the-duplicate-number', name: 'Find the Duplicate Number', lvl: 'Medium', s: 13, h: ['Read the array as a linked list: index x points to a[x].', 'Phase 1: fast and slow until they meet.', 'Phase 2: restart slow; move both one step; they meet at the duplicate.'] },
+  { id: 581, slug: 'shortest-unsorted-continuous-subarray', name: 'Shortest Unsorted Continuous Subarray', lvl: 'Hard idea', s: 5, h: ['Left to right with a running max: a value below it must be inside.', 'Right to left with a running min gives the left boundary.', 'Each side settles one boundary with one running value.'] }
+];
+const P = store.get('tp.practice', {});
+let PF = store.get('tp.pfilter', 'all');
+function renderPractice() {
+  $('pfilter').querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.f === PF)));
+  const show = p => PF === 'all' || (PF === 'must' ? (tier(p.id) === 'must' || tier(p.id) === 'top') : tier(p.id) !== 'extra');
+  const must = PRACTICE.filter(p => tier(p.id) === 'must' || tier(p.id) === 'top'), mustDone = must.filter(p => P[p.id] && P[p.id].s).length;
+  const solved = PRACTICE.filter(p => P[p.id] && P[p.id].s).length, re = PRACTICE.filter(p => P[p.id] && P[p.id].r).length;
+  $('progress').innerHTML = 'Track solved problems in the <a href="../index.html#t-tp">handbook</a>: it keeps one progress record for every topic, schedules your re-solves and feeds Interview mode.';
+  $('plist').innerHTML = PRACTICE.map((p, k) => {
+    if (!show(p)) return '';
+    const st = P[p.id] || {}, shown = st.h || 0;
+    return `<div class="prob"><div class="top"><span class="n">${k + 1}</span><a href="https://leetcode.com/problems/${p.slug}/" target="_blank" rel="noopener"><b>${esc(p.name)}</b></a><span class="lvl">LC ${p.id} · ${esc(p.lvl)}</span>${badge(p.id)}<span class="shape-name">Strategy ${p.s}: ${esc(STRATS[p.s - 1].name)}</span></div><div class="srcs">${esc(srcText(p.id))}</div>
+      <div class="checks"><a href="../index.html#t-tp">Tick it in the handbook</a>
+      ${shown < 3 ? `<button class="chip" type="button" data-hint="${p.id}">Show hint ${shown + 1} of 3</button>` : ''}</div>
+      ${p.h.slice(0, shown).map((t, i) => `<div class="hint"><b>Hint ${i + 1}.</b> ${esc(t)}</div>`).join('')}</div>`;
+  }).join('');
+}
+function initPractice() {
+  $('legendP').innerHTML = LEGEND;
+  $('pfilter').innerHTML = [['all', `All ${PRACTICE.length}`], ['core', 'Everything in the lists'], ['must', 'Top priority and must know']].map(([f, t]) => `<button class="chip" type="button" data-f="${f}">${t}</button>`).join('');
+  $('pfilter').addEventListener('click', e => { const b = e.target.closest('button[data-f]'); if (!b) return; PF = b.dataset.f; store.set('tp.pfilter', PF); renderPractice(); });
+  $('plist').addEventListener('change', e => { const c = e.target; if (!c.dataset.id) return; const id = c.dataset.id; P[id] = P[id] || {}; P[id][c.dataset.f] = c.checked; store.set('tp.practice', P); renderPractice(); });
+  $('plist').addEventListener('click', e => { const b = e.target.closest('button[data-hint]'); if (!b) return; const id = b.dataset.hint; P[id] = P[id] || {}; P[id].h = (P[id].h || 0) + 1; store.set('tp.practice', P); renderPractice(); });
+  renderPractice();
+}
+/* ---------------- problem-solving loop ---------------- */
+const LOOP = [
+  { n: 'Restate', t: 2, goal: 'Make sure you are solving the right problem before you solve anything.', todo: ['Say the input, the output and one example in your own words', 'Write a tiny example you can trace by hand', 'Confirm the output format: indices or values, 0- or 1-based, one answer or all'], ex: ['“I get a sorted array and a target, and return the 1-based indices of the two values that add up to it. Exactly one answer exists. For [2, 7, 11, 15] and 9, that is [1, 2].”', '“I get a string and return the length of the longest substring with no repeated character. For abcabcbb that is 3, from abc.”'], miss: 'Starting to code before confirming the output. Returning values when indices were asked for is the most common silent failure.' },
+  { n: 'Clarify constraints', t: 3, goal: 'Find hidden requirements and the complexity the interviewer expects.', todo: ['Ask the size: n up to 10⁵ rules out O(n²)', 'Ask about duplicates, negatives, empty input, sortedness', 'Ask whether you may modify the input and how much extra space is allowed'], ex: ['n up to 3 × 10⁴, sorted ascending, exactly one answer, O(1) extra space. Sorted order plus the space rule is a strong hint.', 'n up to 5 × 10⁴, any printable character. Aim for O(n): one pass that remembers something.'], miss: 'Not asking at all. Constraints usually tell you the intended complexity before you have an idea.' },
+  { n: 'Brute force', t: 5, goal: 'Get a correct baseline, and an oracle to test the fast version against.', todo: ['State the simplest correct solution and its complexity', 'Code it only if asked or unsure; usually saying it is enough', 'Say out loud that you will now look for the wasted work'], ex: ['Try every pair i < j and check the sum: O(n²) time, O(1) space.', 'Check every substring for repeats: O(n³), or O(n²) if each start grows a set.'], miss: 'Skipping it. Interviewers want to see a correct solution before an optimised one, and it gives you a fallback.' },
+  { n: 'Find the bottleneck', t: 2, goal: 'Name the repeated or wasted work in one sentence.', todo: ['Point at the line that runs too often', 'Ask: what does this work learn that I then throw away?'], ex: ['Each comparison says whether the sum is too big or too small, but the brute force ignores that and keeps checking pairs the sorted order already rules out.', 'On a repeat I restart from the next start and rescan characters I already know are unique.'], miss: 'Optimising at random. A named bottleneck points straight at the technique.' },
+  { n: 'Optimise', t: 8, goal: 'Find the property that removes the waste, and argue that it is safe.', todo: ['Match waste to tool: sorted order lets pointers eliminate; repeated lookups call for a hash map; repeated range sums call for prefix sums', 'Say why each move cannot lose an answer before you code it', 'State the new time and space'], ex: ['Converging pointers. If a[l] + a[r] > target, r cannot pair with anything left, so r--; if smaller, l++. Each step retires one index: O(n) time, O(1) space.', 'A sliding window with a last-seen map. On a repeat, jump the left edge past the previous occurrence. Each character enters and leaves once: O(n).'], miss: 'Coding the idea before you can say why each move is safe. That is where wrong pointer moves come from.' },
+  { n: 'Code', t: 15, goal: 'Clean code that matches exactly what you just explained.', todo: ['Name variables after their meaning', 'Write the loop invariant as a comment', 'Talk while you type: say what each block is for'], ex: ['let l = 0, r = a.length - 1;\nwhile (l < r) {\n  const s = a[l] + a[r];\n  if (s === target) return [l + 1, r + 1];\n  if (s < target) l++; else r--;\n}', 'let best = 0, left = 0;\nconst last = new Map();\nfor (let i = 0; i < s.length; i++) {\n  if (last.has(s[i])) left = Math.max(left, last.get(s[i]) + 1);\n  last.set(s[i], i);\n  best = Math.max(best, i - left + 1);\n}'], miss: 'Silence. The interviewer cannot score reasoning they do not hear.', mono: true },
+  { n: 'Test and explain', t: 8, goal: 'Find your own bugs before the interviewer does, then summarise.', todo: ['Dry-run the example line by line; the player above does exactly this', 'Run edge cases: empty, one element, no answer, duplicates, extremes', 'State the final time and space, and offer a follow-up'], ex: ['[2, 7, 11, 15], 9: 2 + 15 = 17, r--; 2 + 11 = 13, r--; 2 + 7 = 9, return [1, 2]. Edge cases: two elements; negatives are fine because only the order matters.', 'Empty string gives 0; bbbbb gives 1; abba is the trap. left must never move backwards, which is why Math.max is there.'], miss: 'Saying done without a dry run. Bugs like the abba case are found by testing, not by thinking.' }
+];
+const LOOP_EX = ['Two Sum II (LC 167)', 'Longest Substring Without Repeating Characters (LC 3)'];
+const L = { k: 0, ex: 0 };
+function renderLoop() {
+  const total = LOOP.reduce((a, s) => a + s.t, 0), before = LOOP.slice(0, L.k).reduce((a, s) => a + s.t, 0), s = LOOP[L.k];
+  $('loopEx').querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-pressed', String(i === L.ex)));
+  $('loopSteps').querySelectorAll('button').forEach((b, i) => { b.toggleAttribute('aria-current', i === L.k); if (i === L.k) b.setAttribute('aria-current', 'step'); b.classList.toggle('past', i < L.k); });
+  $('loopTrack').style.width = ((before + s.t) / total * 100) + '%';
+  $('loopTime').textContent = `Minutes ${before}–${before + s.t} of a 45-minute round. The last few minutes are for follow-up questions.`;
+  $('loopCard').innerHTML = `<h3><span class="n">${L.k + 1}</span>${esc(s.n)}</h3><p style="margin:0;color:var(--muted)">${esc(s.goal)}</p>
+    <div class="tag do">What to do</div><ul style="margin:0;padding-left:22px">${s.todo.map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+    <div class="tag do">On ${esc(LOOP_EX[L.ex])}</div><div class="said${s.mono ? ' mono' : ''}">${esc(s.ex[L.ex])}</div>
+    <div class="tag miss">Common mistake</div><p style="margin:0">${esc(s.miss)}</p>`;
+}
+function initLoop() {
+  $('loopEx').innerHTML = LOOP_EX.map((e, i) => `<button class="chip" type="button" data-e="${i}">${esc(e)}</button>`).join('');
+  $('loopEx').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { L.ex = Number(b.dataset.e); renderLoop(); } });
+  $('loopSteps').innerHTML = LOOP.map((s, i) => `<button class="ls" type="button" data-k="${i}"><small>Step ${i + 1} · ${s.t} min</small><b>${esc(s.n)}</b></button>`).join('');
+  $('loopSteps').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { L.k = Number(b.dataset.k); renderLoop(); } });
+  $('loopPrev').addEventListener('click', () => { L.k = Math.max(0, L.k - 1); renderLoop(); });
+  $('loopNext').addEventListener('click', () => { L.k = Math.min(LOOP.length - 1, L.k + 1); renderLoop(); });
+  renderLoop();
+}
+
+/* ---------------- theme ---------------- */
+function initTheme() {
+  const saved = store.get('dsa.theme', null);
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  const isDark = () => (document.documentElement.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')) === 'dark';
+  const label = () => { $('theme').textContent = isDark() ? 'Light mode' : 'Dark mode'; };
+  $('theme').addEventListener('click', () => { const next = isDark() ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', next); store.set('dsa.theme', next); label(); });
+  label();
+  try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', label); } catch (e) {}
+}
+
+initTheme(); renderAtlas(); initLab(); initLoop(); renderChooser(); renderQuiz(); initPractice();
+</script>
+<script>if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("../sw.js").catch(() => {}));</script>
+</body></html>
